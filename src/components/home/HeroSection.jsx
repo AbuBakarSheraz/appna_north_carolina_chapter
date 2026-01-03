@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <section className="relative h-[70vh] min-h-[500px] w-full overflow-hidden">
+    <section className="relative h-[70vh] min-h-125 w-full overflow-hidden">
       
       {/* Background Image */}
       <Image
@@ -25,7 +25,7 @@ export default function HeroSection() {
             className="
               text-2xl sm:text-3xl md:text-4xl lg:text-5xl
               font-semibold leading-tight max-w-4xl
-              opacity-0 translate-y-4
+              opacity-0 translate-y-4 font-semibold
               animate-[fadeUp_0.8s_ease-out_forwards]
             "
           >

@@ -2,7 +2,7 @@ import { Check } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 text-white">
+    <footer className="bg-linear-to-r from-gray-800 via-gray-700 to-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
           
@@ -31,7 +31,7 @@ export default function Footer() {
                 'Donate'
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
-                  <Check className="text-orange-500 flex-shrink-0 mt-1" size={20} />
+                  <Check className="text-orange-500 shrink-0 mt-1" size={20} />
                   <span className="text-gray-300 text-sm md:text-base">{item}</span>
                 </li>
               ))}
