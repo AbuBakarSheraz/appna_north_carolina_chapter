@@ -2,53 +2,65 @@ import Image from "next/image";
 
 export default function HeroSection() {
   return (
-    <section className="relative h-[70vh] min-h-125 w-full overflow-hidden">
+    <section className="relative h-[55vh] sm:h-[70vh] min-h-120 w-full overflow-hidden">
       
       {/* Background Image */}
       <Image
         src="/slide1.png"
-        alt="APPNA North Carolina - Physicians Community"
+        alt="Blue Ridge Parkway, North Carolina"
         fill
         priority
-        className="object-cover"
+        className="
+          object-cover
+          object-center
+          sm:object-[center_60%]
+        "
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-[#0F2F1D]/60" />
+      {/* GRADIENT OVERLAY (modern & responsive) */}
+      <div
+        className="
+          absolute inset-0
+          bg-linear-to-t
+          from-black/70 via-black/40 to-black/10
+          sm:from-black/80 sm:via-black/50 sm:to-black/20
+        "
+      />
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full mt-16 md:mt-0 md:items-center">
-        <div className="max-w-7xl ml-4 sm:ml-6 md:ml-10 px-6 text-white">
+      {/* CONTENT */}
+      <div className="relative z-10 flex h-full items-start mt-8 sm:mt-0 sm:items-center">
+        <div className="max-w-7xl px-6 sm:px-10 lg:px-12 text-white pb-12 sm:pb-0">
           
-          {/* Main Title */}
+          {/* Title */}
           <h1
             className="
-              text-2xl sm:text-3xl md:text-4xl lg:text-5xl
+              text-3xl sm:text-4xl md:text-5xl lg:text-6xl
               font-semibold leading-tight max-w-4xl
-              opacity-0 translate-y-4 font-semibold
+              opacity-0 translate-y-4
               animate-[fadeUp_0.8s_ease-out_forwards]
             "
           >
-            APPNA North Carolina
+            APPNA North <span className="text-primary-dark underline-offset-2">Carolina</span>
           </h1>
 
           {/* Subtitle */}
           <p
             className="
-              mt-3 text-sm sm:text-base
-              tracking-widest uppercase text-green-200
+              mt-4 text-xs sm:text-sm tracking-widest uppercase
+              text-white/80
               opacity-0 translate-y-4
               animate-[fadeUp_0.8s_ease-out_0.15s_forwards]
             "
           >
             Association of Physicians of Pakistani Descent of North America
           </p>
-           <p
+
+          <p
             className="
-              mt-3 text-sm sm:text-base
-              tracking-widest uppercase text-green-200
+              mt-1 text-xs sm:text-sm tracking-widest uppercase
+              text-white/70
               opacity-0 translate-y-4
-              animate-[fadeUp_0.8s_ease-out_0.15s_forwards]
+              animate-[fadeUp_0.8s_ease-out_0.2s_forwards]
             "
           >
             North Carolina Chapter
@@ -58,13 +70,14 @@ export default function HeroSection() {
           <p
             className="
               mt-6 max-w-3xl text-base sm:text-lg
-              text-green-100 leading-relaxed
-              opacity-0 translate-y-4 font-semibold font-serif
+              text-white/90 leading-relaxed
+              font-medium
+              opacity-0 translate-y-4
               animate-[fadeUp_0.8s_ease-out_0.3s_forwards]
             "
           >
-            We are a professional and educational organization of physicians
-            of Pakistani descent serving the medical community in North Carolina.
+            A professional and educational organization of physicians of
+            Pakistani descent serving the medical community across North Carolina.
           </p>
         </div>
       </div>

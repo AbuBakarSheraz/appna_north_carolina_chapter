@@ -1,81 +1,103 @@
-import { Check } from 'lucide-react';
+import { Check } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-linear-to-r from-gray-800 via-gray-700 to-gray-800 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+    <footer className="bg-[#07140e] text-white">
+      <div className="px-6 sm:px-10 md:px-24 py-14">
+        
+        {/* Top Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-14">
           
-          {/* Left Column - Membership Info */}
-          <div className="space-y-4">
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-6">
-              APPNA – NORTH CAROLINA MEMBERSHIP
+          {/* Column 1 – About / Membership */}
+          <div>
+            <h3 className="text-lg sm:text-xl font-semibold tracking-wide mb-5">
+              APPNA North Carolina
             </h3>
-            <p className="text-gray-300 text-sm md:text-base leading-relaxed">
-              The membership of APPNA – North Carolina shall be of the following categories: Active, Associate, Honorary, Emeritus, Affiliate, Physician-in-Training and Student. Unless otherwise specified in the Bylaws, Active members shall be entitled to all the privileges of APPNA – North Carolina including the right to vote and hold office.
+            <p className="text-green-100 text-sm leading-relaxed">
+              APPNA – North Carolina is a professional, educational, and
+              not-for-profit organization serving physicians of Pakistani descent.
+              Active members enjoy full voting rights and leadership opportunities
+              in accordance with the chapter bylaws.
             </p>
           </div>
 
-          {/* Middle Column - Organization */}
-          <div className="space-y-4">
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-6">
-              ORGANIZATION
+          {/* Column 2 – Organization Values */}
+          <div>
+            <h3 className="text-lg sm:text-xl font-semibold tracking-wide mb-5">
+              Organization
             </h3>
             <ul className="space-y-3">
               {[
-                'Independent',
-                'Not for Profit',
-                'Professional & Educational',
-                'No Political',
-                'Membership',
-                'Donate'
+                "Independent & Not-for-Profit",
+                "Professional & Educational",
+                "Non-Political Organization",
+                "Physician-Led Membership",
+                "Community-Focused Service",
+                "Charitable Initiatives",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3">
-                  <Check className="text-orange-500 shrink-0 mt-1" size={20} />
-                  <span className="text-gray-300 text-sm md:text-base">{item}</span>
+                  <Check
+                    size={18}
+                    className="text-green-400 mt-0.5 shrink-0"
+                  />
+                  <span className="text-green-100 text-sm">{item}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Right Column - Contact Us */}
-          <div className="space-y-4">
-            <h3 className="text-xl md:text-2xl font-bold text-white mb-6">
-              CONTACT US
+          {/* Column 3 – Contact */}
+          <div>
+            <h3 className="text-lg sm:text-xl font-semibold tracking-wide mb-5">
+              Contact
             </h3>
-            <div className="space-y-4">
+
+            <div className="space-y-4 text-sm">
               <div>
-                <p className="text-gray-400 text-sm mb-1">Phone:</p>
-                <a 
-                  href="tel:+34324325324" 
-                  className="text-orange-500 hover:text-orange-400 transition-colors text-base md:text-lg font-semibold"
+                <p className="text-green-300 mb-1">Phone</p>
+                <a
+                  href="tel:+1343323243"
+                  className="text-white font-medium hover:text-green-300 transition"
                 >
-                  + 1 34-332-3243
+                  +1 (343) 323-243
                 </a>
               </div>
+
               <div>
-                <p className="text-gray-400 text-sm mb-1">Email:</p>
-                <a 
-                  href="mailto:abcxyz@gmail.com" 
-                  className="text-orange-500 hover:text-orange-400 transition-colors text-base md:text-lg font-semibold break-all"
+                <p className="text-green-300 mb-1">Email</p>
+                <a
+                  href="mailto:info@appnanc.org"
+                  className="text-white font-medium hover:text-green-300 transition break-all"
                 >
-                  abcxyz@gmail.com
+                  support@appnanc.org
                 </a>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-gray-600">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
+        {/* Divider */}
+        <div className="mt-12 border-t border-white/10 pt-6">
+          
+          {/* Bottom Bar */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+            <p className="text-green-200">
               © 2026 APPNA North Carolina. All rights reserved.
             </p>
-            <div className="flex gap-6 text-sm text-gray-400">
-              <a href="#" className="hover:text-orange-500 transition-colors">Privacy Policy</a>
-              <span>|</span>
-              <a href="#" className="hover:text-orange-500 transition-colors">Terms of Service</a>
+
+            <div className="flex items-center gap-6 text-green-200">
+              <a
+                href="/privacy"
+                className="hover:text-white transition"
+              >
+                Privacy Policy
+              </a>
+              <a
+                href="/terms"
+                className="hover:text-white transition"
+              >
+                Terms of Service
+              </a>
             </div>
           </div>
         </div>

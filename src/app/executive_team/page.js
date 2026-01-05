@@ -1,66 +1,97 @@
-import React from 'react';
-import { Wrench, Clock, Rocket } from 'lucide-react';
+import Image from "next/image";
 
-export default function Page() {
+const committeeMembers = [
+  {
+    name: "Sohail Sarwar, MD",
+    role: "President",
+    year: "APPNA NC 2026",
+    image: "/sohail.png",
+  },
+  {
+    name: "Mukesh Kumar, MD",
+    role: "President Elect",
+    year: "APPNA NC 2026",
+    image: "/mukesh.png",
+  },
+  {
+    name: "Arslan Afzal, MD",
+    role: "Secretary",
+    year: "APPNA NC 2026",
+    image: "/arslan.png",
+  },
+  {
+    name: "M. Waleed Zeb",
+    role: "Treasurer",
+    year: "APPNA NC 2026",
+    image: "/waleed.png",
+  },
+  {
+    name: "Tanvir Ch, MD",
+    role: "Past President",
+    year: "APPNA NC 2026",
+    image: "/tanvir.png",
+  },
+];
+
+export default function ExecutiveCommittee() {
   return (
-    <div className="min-h-screen bg-green-50 flex items-center justify-center px-4 py-12">
-      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
+    <section className="bg-[#F9FAF7] py-16 sm:py-20">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10">
         
-        {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-green-800 rounded-full p-6 shadow-lg">
-            <Wrench className="text-white" size={48} />
-          </div>
+        {/* Section Heading */}
+        <div className="text-center mb-14">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-green-900">
+            Executive Committee
+          </h2>
+          <p className="mt-3 text-sm sm:text-base text-green-700 max-w-2xl mx-auto">
+            Dedicated leadership guiding APPNA North Carolina with integrity,
+            service, and professional excellence.
+          </p>
         </div>
 
-        {/* Heading */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Under Development</h1>
+        {/* Members Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          {committeeMembers.map((member) => (
+            <div
+              key={member.name}
+              className="
+                group bg-white rounded-2xl shadow-sm
+                hover:shadow-xl transition-all duration-500
+                border border-green-100 overflow-hidden
+              "
+            >
+              {/* Image */}
+              <div className="relative h-72 w-full overflow-hidden">
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  fill
+                  className="
+                    object-cover object-top
+                    group-hover:scale-105 transition-transform duration-500
+                  "
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-[#0b1f15]/70 via-transparent to-transparent" />
+              </div>
 
-        {/* Subheading */}
-        <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-6 py-2 rounded-full mb-6">
-          <Clock size={20} />
-          <span className="font-semibold text-sm">In Progress</span>
+              {/* Content */}
+              <div className="p-6 text-center">
+                <h3 className="text-lg sm:text-xl font-semibold text-green-900">
+                  {member.name}
+                </h3>
+
+                <p className="mt-1 text-sm sm:text-base font-medium text-green-700">
+                  {member.role}
+                </p>
+
+                <p className="mt-1 text-xs sm:text-sm text-gray-500">
+                  {member.year}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
-
-        {/* Message */}
-        <p className="text-gray-700 mb-2">
-          This section of the site is under development by our dev team.
-        </p>
-        <p className="text-gray-700 mb-4">
-          It will be live soon — please visit again in the next <span className="font-bold text-green-800">24 hours</span>.
-        </p>
-        <p className="text-gray-600 mb-6">Thank you for your patience!</p>
-
-        {/* Divider */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="h-px bg-gray-300 flex-1"></div>
-          <Rocket className="text-green-800" size={24} />
-          <div className="h-px bg-gray-300 flex-1"></div>
-        </div>
-
-        {/* Progress */}
-        <div>
-          <div className="flex justify-between text-sm text-gray-600 mb-1">
-            <span>Development Progress</span>
-            <span className="font-semibold text-green-800">75%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div 
-              className="h-full bg-green-600 rounded-full" 
-              style={{ width: '75%' }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Contact info */}
-        <p className="text-sm text-gray-500 mt-8">
-          Questions? Contact us at{' '}
-          <a href="mailto:info@appnanc.org" className="text-green-800 font-semibold hover:underline">
-            info@appnanc.org
-          </a>
-        </p>
-
       </div>
-    </div>
+    </section>
   );
 }
