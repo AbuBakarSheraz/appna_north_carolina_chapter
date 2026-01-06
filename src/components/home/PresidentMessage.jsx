@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function PresidentMessage() {
   return (
-    <section className="py-12 sm:py-20 bg-[#F9FAF7]">
+    <section className="py-12 sm:py-12 bg-[#F9FAF7]">
       <div className="px-6 sm:px-10 lg:px-12">
         
         {/* Section Heading */}

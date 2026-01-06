@@ -40,7 +40,7 @@ export default function HeroSection() {
               animate-[fadeUp_0.8s_ease-out_forwards]
             "
           >
-            APPNA North <span className="text-primary-dark underline-offset-2">Carolina</span>
+            APPNA North <span className="">Carolina</span>
           </h1>
 
           {/* Subtitle */}

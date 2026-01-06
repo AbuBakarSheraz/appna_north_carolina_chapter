@@ -35,17 +35,18 @@ const committeeMembers = [
 
 export default function ExecutiveCommittee() {
   return (
-    <section className="bg-[#F9FAF7] py-16 sm:py-20">
-      <div className="max-w-7xl mx-auto px-6 sm:px-10">
+    <section className="relative bg-[#f8f9fb] py-10">
+      <div className="px-6 sm:px-10 lg:px-18">
         
         {/* Section Heading */}
-        <div className="text-center mb-14">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-green-900">
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2 className="text-3xl md:text-4xl font-semibold text-[#7a1f3d]">
             Executive Committee
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-green-700 max-w-2xl mx-auto">
-            Dedicated leadership guiding APPNA North Carolina with integrity,
-            service, and professional excellence.
+          <p className="mt-4 text-sm sm:text-base text-gray-600 leading-relaxed">
+            A distinguished leadership team committed to advancing medical
+            excellence, community service, and professional integrity across
+            North Carolina.
           </p>
         </div>
 
@@ -55,13 +56,15 @@ export default function ExecutiveCommittee() {
             <div
               key={member.name}
               className="
-                group bg-white rounded-2xl shadow-sm
-                hover:shadow-xl transition-all duration-500
-                border border-green-100 overflow-hidden
+                group bg-white rounded-2xl
+                border border-gray-100
+                shadow-sm hover:shadow-2xl
+                transition-all duration-500
+                overflow-hidden
               "
             >
               {/* Image */}
-              <div className="relative h-72 w-full overflow-hidden">
+              <div className="relative h-80 w-full overflow-hidden">
                 <Image
                   src={member.image}
                   alt={member.name}
@@ -71,20 +74,21 @@ export default function ExecutiveCommittee() {
                     group-hover:scale-105 transition-transform duration-500
                   "
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-[#0b1f15]/70 via-transparent to-transparent" />
+                {/* Dark professional overlay */}
+                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
               </div>
 
               {/* Content */}
               <div className="p-6 text-center">
-                <h3 className="text-lg sm:text-xl font-semibold text-green-900">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">
                   {member.name}
                 </h3>
 
-                <p className="mt-1 text-sm sm:text-base font-medium text-green-700">
+                <p className="mt-2 text-sm sm:text-base font-medium text-[#7a1f3d]">
                   {member.role}
                 </p>
 
-                <p className="mt-1 text-xs sm:text-sm text-gray-500">
+                <p className="mt-1 text-xs sm:text-sm tracking-wide text-gray-500 uppercase">
                   {member.year}
                 </p>
               </div>

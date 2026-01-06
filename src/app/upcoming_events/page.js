@@ -1,66 +1,113 @@
-import React from 'react';
-import { Wrench, Clock, Rocket } from 'lucide-react';
+import { CalendarDays, MapPin } from "lucide-react";
 
-export default function Page() {
+const events = [
+  {
+   title: "Meet & Greet",
+date: "7-Feb-2026",
+location: "North Carolina",
+image: "/future_events/meet.jpeg",
+description:
+  "An informal evening gathering bringing together physicians and healthcare professionals to connect, network, and build meaningful relationships in a relaxed and welcoming environment.",
+},
+  {
+    title: "Annual Convention 2026",
+    date: "soon...",
+    location: "North Carolina",
+    image: "/future_events/convention.png",
+    description:
+      "A flagship gathering of physicians, leaders, and healthcare professionals featuring CME sessions, keynote speakers, and networking opportunities.",
+  },
+  {
+    title: "Eid  Banquet",
+    date: "soon...",
+    location: "North Carolina",
+    image: "/future_events/eid_banquet.png",
+    description:
+      "A festive evening celebrating Eid with families and community members, promoting unity, cultural connection, and shared values.",
+  },
+  {
+    title: "Spring Picnic",
+    date: "soon...",
+    location: "North Carolina",
+    image: "/future_events/spring_picnic.png",
+    description:
+      "An outdoor family-friendly gathering with recreational activities, food, and opportunities to strengthen community bonds.",
+  },
+  {
+    title: "Winter GTG",
+    date: "soon...",
+    location: "North Carolina",
+    image: "/future_events/winter.png",
+    description:
+      "An elegant winter evening focused on professional networking, reflection on the year’s achievements, and future planning.",
+  },
+];
+
+export default function UpcomingEvents() {
   return (
-    <div className="min-h-screen bg-green-50 flex items-center justify-center px-4 py-12">
-      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
-        
-        {/* Icon */}
-        <div className="flex justify-center mb-6">
-          <div className="bg-green-800 rounded-full p-6 shadow-lg">
-            <Wrench className="text-white" size={48} />
-          </div>
+    <section className="relative bg-[#f8f9fb] py-10">
+      <div className="px-6 sm:px-10 lg:px-18">
+        {/* Section Header */}
+        <div className="text-center max-w-2xl mx-auto mb-14">
+          <h2 className="text-3xl md:text-4xl font-semibold text-[#7a1f3d]">
+            Upcoming Events
+          </h2>
+          <p className="mt-4 text-gray-600">
+            Discover our upcoming professional, cultural, and community-driven
+            events designed to connect, inspire, and lead.
+          </p>
         </div>
 
-        {/* Heading */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Under Development</h1>
+        {/* Events Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {events.map((event, index) => (
+            <div
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+            >
+              {/* Image */}
+              <div className="relative h-52 overflow-hidden">
+                <img
+                  src={event.image}
+                  alt={event.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/25" />
+              </div>
 
-        {/* Subheading */}
-        <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-6 py-2 rounded-full mb-6">
-          <Clock size={20} />
-          <span className="font-semibold text-sm">In Progress</span>
+              {/* Content */}
+              <div className="p-6 flex flex-col h-full">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {event.title}
+                </h3>
+
+                <div className="flex items-center text-sm text-gray-500 mb-1">
+                  <CalendarDays className="w-4 h-4 mr-2 text-[#7a1f3d]" />
+                  {event.date}
+                </div>
+                <div className="flex items-center text-sm text-gray-500 mb-3">
+                  <MapPin className="w-4 h-4 mr-2 text-[#7a1f3d]" />
+                  {event.location}
+                </div>
+
+                <p className="text-sm text-gray-600 leading-relaxed line-clamp-4">
+                  {event.description}
+                </p>
+
+                <div className="mt-6">
+                  <button className="text-sm font-medium text-[#7a1f3d] hover:text-[#5f1730] transition">
+                    Learn More →
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-
-        {/* Message */}
-        <p className="text-gray-700 mb-2">
-          This section of the site is under development by our dev team.
-        </p>
-        <p className="text-gray-700 mb-4">
-          It will be live soon — please visit again in the next <span className="font-bold text-green-800">24 hours</span>.
-        </p>
-        <p className="text-gray-600 mb-6">Thank you for your patience!</p>
-
-        {/* Divider */}
-        <div className="flex items-center justify-center gap-4 mb-6">
-          <div className="h-px bg-gray-300 flex-1"></div>
-          <Rocket className="text-green-800" size={24} />
-          <div className="h-px bg-gray-300 flex-1"></div>
-        </div>
-
-        {/* Progress */}
-        <div>
-          <div className="flex justify-between text-sm text-gray-600 mb-1">
-            <span>Development Progress</span>
-            <span className="font-semibold text-green-800">75%</span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div 
-              className="h-full bg-green-600 rounded-full" 
-              style={{ width: '75%' }}
-            ></div>
-          </div>
-        </div>
-
-        {/* Contact info */}
-        <p className="text-sm text-gray-500 mt-8">
-          Questions? Contact us at{' '}
-          <a href="mailto:info@appnanc.org" className="text-green-800 font-semibold hover:underline">
-            info@appnanc.org
-          </a>
-        </p>
-
       </div>
-    </div>
+    </section>
   );
 }

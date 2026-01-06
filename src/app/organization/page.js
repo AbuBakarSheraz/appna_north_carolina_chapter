@@ -3,12 +3,12 @@ import { FileText } from "lucide-react";
 
 export default function OrganizationSection() {
   return (
-    <section className="py-16 sm:py-20 bg-white">
+    <section className="py-10 sm:py-14 bg-white">
       <div className="px-6 sm:px-10 lg:px-18">
 
         {/* HEADER */}
-        <div className="max-w-4xl mb-14">
-          <h1 className="text-3xl sm:text-4xl font-semibold text-black">
+        <div className="max-w-4xl mb-12">
+          <h1 className="text-2xl sm:text-4xl font-semibold text-black">
             Organization & Gover<span className="text-primary-dark font-bold">nance</span>
           </h1>
           <p className="mt-4 text-lg text-muted leading-relaxed">
