@@ -3,13 +3,13 @@ import { FileText } from "lucide-react";
 
 export default function OrganizationSection() {
   return (
-    <section className="py-10 sm:py-14 bg-white">
+     <section className="relative bg-[#f8f9fb] py-10">
       <div className="px-6 sm:px-10 lg:px-18">
 
         {/* HEADER */}
-        <div className="max-w-4xl mb-12">
-          <h1 className="text-2xl sm:text-4xl font-semibold text-black">
-            Organization & Gover<span className="text-primary-dark font-bold">nance</span>
+       <div className="text-center max-w-2xl mx-auto mb-14">
+          <h1 className="text-3xl md:text-4xl font-semibold text-[#7a1f3d]">
+            Organization & Gover<span className="">nance</span>
           </h1>
           <p className="mt-4 text-lg text-muted leading-relaxed">
             The North Carolina Chapter of the Association of Pakistani Physicians
