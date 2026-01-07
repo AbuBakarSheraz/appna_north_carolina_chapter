@@ -112,7 +112,7 @@ export default function Announcement() {
                 }}
                 className="inline-flex items-center justify-center w-full rounded-xl bg-[#7a1f3d] px-6 py-3 text-white font-medium hover:bg-[#5f1730] transition"
               >
-                Register
+                Register Now
               </a>
 
               <p className="mt-3 text-xs text-gray-500">
