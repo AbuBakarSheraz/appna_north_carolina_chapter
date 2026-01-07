@@ -1,9 +1,11 @@
 import { CalendarDays, MapPin } from "lucide-react";
+import Link from "next/link";
 
 
 const events = [
   {
    title: "Meet & Greet",
+   href: "/upcoming_events/meet",
 date: "7-Feb-2026",
 location: "North Carolina",
 image: "/future_events/meet.jpeg",
@@ -13,6 +15,7 @@ description:
   {
     title: "Annual Convention 2026",
     date: "soon...",
+    href: "/upcoming_events/annual_convocation",
     location: "North Carolina",
     image: "/future_events/convention.png",
     description:
@@ -21,6 +24,7 @@ description:
   {
     title: "Eid  Banquet",
     date: "soon...",
+    href: "/upcoming_events/eid_banquet",
     location: "North Carolina",
     image: "/future_events/eid_banquet.png",
     description:
@@ -30,6 +34,7 @@ description:
     title: "Spring Picnic",
     date: "soon...",
     location: "North Carolina",
+    href: "/upcoming_events/spring_picnic",
     image: "/future_events/spring_picnic.png",
     description:
       "An outdoor family-friendly gathering with recreational activities, food, and opportunities to strengthen community bonds.",
@@ -37,6 +42,7 @@ description:
   {
     title: "Winter GTG",
     date: "soon...",
+    href: "/upcoming_events/winter_gtg",
     location: "North Carolina",
     image: "/future_events/winter.png",
     description:
@@ -106,9 +112,11 @@ export default function UpcomingEvents() {
                 </p>
 
                 <div className="mt-6">
-                  <button className="text-sm font-medium text-[#7a1f3d] hover:text-[#5f1730] transition">
+                  <Link
+                  href={event.href}
+                  className="text-sm font-medium text-[#7a1f3d] hover:text-[#5f1730] transition">
                     Learn More →
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

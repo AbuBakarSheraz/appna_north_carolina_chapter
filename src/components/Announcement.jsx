@@ -112,7 +112,7 @@ export default function Announcement() {
                 }}
                 className="inline-flex items-center justify-center w-full rounded-xl bg-[#7a1f3d] px-6 py-3 text-white font-medium hover:bg-[#5f1730] transition"
               >
-                Pay $85 & Register
+                Register
               </a>
 
               <p className="mt-3 text-xs text-gray-500">
@@ -131,9 +131,9 @@ export default function Announcement() {
           className="
             fixed z-90
             flex items-center justify-center
-            w-14 h-14 rounded-full
+            w-17 h-17 rounded-full
             bg-emerald-500
-            text-white text-sm font-medium
+            text-[#7a1f3d] text-sm font-medium
             shadow-lg
             cursor-move
             animate-pulse
