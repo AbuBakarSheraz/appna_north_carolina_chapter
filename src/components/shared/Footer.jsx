@@ -30,7 +30,7 @@ export default function Footer() {
             <a href="/join" className="hover:text-white transition">
               Join
             </a>
-            <a href="/contact" className="hover:text-white transition">
+            <a href="/contact_us" className="hover:text-white transition">
               Contact
             </a>
           </nav>

@@ -7,7 +7,7 @@ const navItems = [
   { label: "Home", href: "/" },
   { label: "Organization", href: "/organization" },
   { label: "Executive Team", href: "/executive_team" },
-  { label: "Projects", href: "/projects" },
+  { label: "Committees", href: "/Committees" },
   { label: "Upcoming Events", href: "/upcoming_events" },
   { label: "Past Events", href: "/past_events" },
   { label: "Gallery", href: "/gallery" },

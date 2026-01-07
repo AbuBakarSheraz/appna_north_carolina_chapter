@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { FileText } from "lucide-react";
+export const metadata = {
+  title: "Organization & Governance | APPNA NC 2026",
+  description:
+    "Learn about the North Carolina Chapter of APPNA, its mission, leadership, governance structure, membership, and objectives. Committed to physician wellness, mentorship, and community service, NC-APPNA 2026 focuses on connecting members as one family.",
+};
 
 export default function OrganizationSection() {
+  
   return (
      <section className="relative bg-[#f8f9fb] py-10">
       <div className="px-6 sm:px-10 lg:px-18">

@@ -32,6 +32,12 @@ const committeeMembers = [
     image: "/tanvir.png",
   },
 ];
+export const metadata = {
+  title: "Executive Committee | APPNA NC Leadership 2026",
+  description:
+    "Meet the APPNA North Carolina Executive Committee for 2026—a dedicated leadership team committed to unity, mentorship, physician wellness, and community service, working together to strengthen our chapter as one family.",
+};
+
 
 export default function ExecutiveCommittee() {
   return (

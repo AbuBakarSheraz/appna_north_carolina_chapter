@@ -1,5 +1,6 @@
 import { CalendarDays, MapPin } from "lucide-react";
 
+
 const events = [
   {
    title: "Meet & Greet",
@@ -42,6 +43,12 @@ description:
       "An elegant winter evening focused on professional networking, reflection on the year’s achievements, and future planning.",
   },
 ];
+export const metadata = {
+  title: "Upcoming Events | Connecting APPNA NC as One Family",
+  description:
+    "Explore APPNA North Carolina’s upcoming professional, cultural, and community events designed to bring physicians and families together, strengthen relationships, promote wellness, and foster mentorship in alignment with our 2026 theme, “Connecting Our Chapter as a Family.”",
+};
+
 
 export default function UpcomingEvents() {
   return (
