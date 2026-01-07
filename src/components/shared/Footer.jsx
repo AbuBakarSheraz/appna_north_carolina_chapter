@@ -57,7 +57,7 @@ export default function Footer() {
 
             {/* Social */}
             <a
-              href="#"
+              href="https://www.facebook.com/APPNANorthCarolina/"
               className="text-green-200 hover:text-white transition"
               aria-label="Facebook"
             >
