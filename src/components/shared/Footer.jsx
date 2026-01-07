@@ -10,7 +10,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#07140e] text-white">
       <div className="max-w-7xl mx-auto px-6 sm:px-10 py-8">
-        
+
         {/* Main Row */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
 
@@ -37,8 +37,6 @@ export default function Footer() {
 
           {/* Right – Contact & Social */}
           <div className="flex items-center gap-5">
-            
-            {/* Contact */}
             <a
               href="mailto:support@appnanc.org"
               className="text-green-200 hover:text-white transition"
@@ -55,9 +53,10 @@ export default function Footer() {
               <Phone size={18} />
             </a>
 
-            {/* Social */}
             <a
               href="https://www.facebook.com/APPNANorthCarolina/"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-green-200 hover:text-white transition"
               aria-label="Facebook"
             >
@@ -80,6 +79,21 @@ export default function Footer() {
               <Twitter size={18} />
             </a>
           </div>
+        </div>
+
+        {/* Developer Credit */}
+        <div className="mt-6 pt-4 border-t border-white/10 text-center">
+          <p className="text-xs text-green-300">
+            Developed & maintained with ❤️ by{" "}
+            <a
+              href="https://www.linkedin.com/in/abubakar-sheraz-350085222"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-green-200 hover:text-white transition"
+            >
+              Sheraz
+            </a>
+          </p>
         </div>
       </div>
     </footer>
