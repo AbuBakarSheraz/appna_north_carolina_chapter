@@ -5,7 +5,8 @@ const committeeMembers = [
     name: "Sohail Sarwar, MD",
     role: "President",
     year: "APPNA NC 2026",
-    image: "/sohail.png",
+    image: "/president.png",
+    position: "center 12%",
   },
   {
     name: "Mukesh Kumar, MD",
@@ -18,6 +19,7 @@ const committeeMembers = [
     role: "Secretary",
     year: "APPNA NC 2026",
     image: "/arslan.png",
+    position: "center 12%",
   },
   {
     name: "M. Waleed Zeb",
@@ -79,6 +81,8 @@ export default function ExecutiveCommittee() {
                     object-cover object-top
                     group-hover:scale-105 transition-transform duration-500
                   "
+                  style={{ objectPosition: member.position }}
+
                 />
                 {/* Dark professional overlay */}
                 <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />

@@ -13,13 +13,13 @@ description:
   "An informal evening gathering bringing together physicians and healthcare professionals to connect, network, and build meaningful relationships in a relaxed and welcoming environment.",
 },
   {
-    title: "Annual Convention 2026",
+    title: "Spring Picnic",
     date: "soon...",
-    href: "/upcoming_events/annual_convocation",
     location: "North Carolina",
-    image: "/future_events/convention.png",
+    href: "/upcoming_events/spring_picnic",
+    image: "/future_events/spring_picnic.png",
     description:
-      "A flagship gathering of physicians, leaders, and healthcare professionals featuring CME sessions, keynote speakers, and networking opportunities.",
+      "An outdoor family-friendly gathering with recreational activities, food, and opportunities to strengthen community bonds.",
   },
   {
     title: "Eid  Banquet",
@@ -30,14 +30,14 @@ description:
     description:
       "A festive evening celebrating Eid with families and community members, promoting unity, cultural connection, and shared values.",
   },
-  {
-    title: "Spring Picnic",
+    {
+    title: "Annual Convention 2026",
     date: "soon...",
+    href: "/upcoming_events/annual_convocation",
     location: "North Carolina",
-    href: "/upcoming_events/spring_picnic",
-    image: "/future_events/spring_picnic.png",
+    image: "/future_events/convention.png",
     description:
-      "An outdoor family-friendly gathering with recreational activities, food, and opportunities to strengthen community bonds.",
+      "A flagship gathering of physicians, leaders, and healthcare professionals featuring CME sessions, keynote speakers, and networking opportunities.",
   },
   {
     title: "Winter GTG",

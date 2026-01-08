@@ -96,7 +96,6 @@ export default function PresidentMessage() {
 
               {/* Signature */}
               <div className="mt-8 border-t border-gray-200 pt-6">
-                <p className="font-medium text-gray-800">Warm regards,</p>
                 <p className="mt-2 font-semibold text-gray-900">
                   Sohail Sarwar, MD
                 </p>

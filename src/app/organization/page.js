@@ -18,8 +18,8 @@ export default function OrganizationSection() {
             Organization & Gover<span className="">nance</span>
           </h1>
           <p className="mt-4 text-lg text-muted leading-relaxed">
-            The North Carolina Chapter of the Association of Pakistani Physicians
-            of North America (NC-APPNA) operates under a formal constitution and
+            The Association of Pakistani Physicians
+            of North America - North Carolina (APPNA NC Chapter) operates under a formal constitution and
             bylaws that define its mission, structure, and governance.
           </p>
         </div>
@@ -73,7 +73,7 @@ export default function OrganizationSection() {
               Officers & Leadership
             </h3>
             <p className="text-muted leading-relaxed">
-              NC-APPNA is led by elected officers including the President,
+              APPNA North Carolina Chapter led by elected officers including the President,
               President-Elect, Secretary, Treasurer, Regional Councilors, and
               Immediate Past President. All officers are elected by the general
               membership in accordance with the bylaws.
