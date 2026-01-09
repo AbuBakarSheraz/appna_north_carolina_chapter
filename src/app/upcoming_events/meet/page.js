@@ -92,7 +92,7 @@ export default function EventDetailsPage() {
                 rel="noopener noreferrer"
                 className="inline-flex justify-center items-center rounded-xl bg-[#7a1f3d] px-8 py-3 text-sm sm:text-base font-medium text-white hover:bg-[#5f1730] transition"
               >
-                Register by February 7
+                Register by January 21
               </a>
 
               <a
