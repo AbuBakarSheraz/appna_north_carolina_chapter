@@ -55,10 +55,18 @@ export default function EventDetailsPage() {
                   <span>The Palm, Cary, North Carolina</span>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-[#7a1f3d]" />
-                  <span>Registration Fee: $85 USD</span>
-                </div>
+<div className="flex items-start gap-2">
+  <DollarSign className="w-5 h-5 text-[#7a1f3d] mt-0.5" />
+  <div className="text-gray-600">
+    <p className="font-medium">
+      Registration Fee: <span className="text-gray-900">$85 USD</span>
+    </p>
+    <p className="text-sm text-gray-500 mt-1">
+      Children under 7 years: <span className="font-medium text-gray-700">$55 USD</span>
+    </p>
+  </div>
+</div>
+
               </div>
 
               {/* Description */}
