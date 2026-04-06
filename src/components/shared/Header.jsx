@@ -3,7 +3,8 @@
 import { Menu, X, Facebook, Linkedin,Instagram } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
-import Navbar from "@/components/shared/Navbar";
+import Link from "next/link";
+import Navbar from "./Navbar";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -17,6 +18,7 @@ export default function Header() {
             
             {/* LOGO */}
             <div className="flex items-center">
+              <Link href="/" className="cursor-pointer">
               <Image
                 src="/logo.png"
                 alt="Organization Logo"
@@ -25,6 +27,7 @@ export default function Header() {
                 priority
                 className="h-18 w-auto object-contain"
               />
+              </Link>
             </div>
 
             {/* DESKTOP NAV */}
@@ -32,15 +35,15 @@ export default function Header() {
               <Navbar />
 
               {/* CTA */}
-              <button className="ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
+              <Link href='/donate' className="cursor-pointer ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
                 Donate
-              </button>
-               <button className="ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
+              </Link>
+               <Link href='/register' className="cursor-pointer ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
                 Join Us
-              </button>
-               <button className="ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
+              </Link>
+               <Link href='/login' className="cursor-pointer ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
                 Login
-              </button>
+              </Link>
             </div>
 
             {/* MOBILE MENU BUTTON */}
@@ -86,19 +89,19 @@ export default function Header() {
 
           {/* CTA */}
           <div className="px-6 mt-6">
-            <button className="w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
+            <Link href='/donate' className="cursor-pointer w-full px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
               Donate
-            </button>           
+            </Link>           
           </div>
-           <div className="px-6 mt-6">
-            <button className="w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
+           <div className="px-6 mt-7">
+            <Link href='/register' className="cursor-pointer w-full px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
               Join Us
-            </button>
+            </Link>
           </div>
-           <div className="px-6 mt-6">
-            <button className="w-full py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
+           <div className="px-6 mt-7">
+            <Link href='/login' className="cursor-pointerw-full px-6.25 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
               Login
-            </button>
+            </Link>
           </div>
 
           {/* SOCIAL */}

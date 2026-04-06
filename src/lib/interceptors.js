@@ -1,0 +1,38 @@
+"use client";
+
+
+import { api } from './api';
+import { getAccessToken, setAccessToken, clearAccessToken } from '../store/auth';
+
+api.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  console.log("token" + token);
+  
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const original = error.config;
+
+    if (error.response?.status === 401 && !original._retry) {
+      original._retry = true;
+
+      try {
+        const { data } = await api.post('/auth/refresh');
+        setAccessToken(data.access_token);
+        original.headers.Authorization = `Bearer ${data.access_token}`;
+        return api(original);
+      } catch {
+        clearAccessToken();
+        window.location.href = '/login';
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);

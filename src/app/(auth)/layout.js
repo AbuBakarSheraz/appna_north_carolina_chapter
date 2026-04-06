@@ -1,6 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import '../lib/interceptors';
+// import "../global.css";
+import '../../lib/interceptors';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,16 +20,8 @@ export const metadata = {
 };
 
 
-export default function RootLayout({ children }) {
+export default function AuthLayout({ children }) {
   return (
-    <html lang="en">
-      <body>
-
-        {/* <Header />
-        <Announcement /> */}
         <main>{children}</main>
-        {/* <Footer /> */}
-      </body>
-    </html>
   );
 }

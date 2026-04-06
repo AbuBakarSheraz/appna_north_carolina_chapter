@@ -2,48 +2,57 @@ import React from "react";
 import { CalendarDays, MapPin, Clock } from "lucide-react";
 
 const pastEvents = [
-  {
-    title: "Annual Convention",
-    date: "2024",
-    location: "North Carolina",
-    description:
-      "This event page will be updated with full details, photos, and highlights once content is finalized.",
-  },
-  {
-    title: "Eid Banquet",
-    date: "2024",
-    location: "North Carolina",
-    description:
-      "Event details, images, and summary will be added soon. Stay tuned for updates.",
-  },
-  {
-    title: "Spring Picnic",
-    date: "2023",
-    location: "North Carolina",
-    description:
-      "Archived event information will be published here once verified.",
-  },
-  {
-    title: "Winter Gathering",
-    date: "2023",
-    location: "North Carolina",
-    description:
-      "This is a placeholder event. Content will be updated as records are finalized.",
-  },
-  {
-    title: "Professional CME Session",
-    date: "2022",
-    location: "North Carolina",
-    description:
-      "Event details and educational highlights will be added soon.",
-  },
-  {
-    title: "Community Networking Event",
-    date: "2022",
-    location: "North Carolina",
-    description:
-      "Past event summary and media will be updated in future.",
-  },
+   {
+   title: "Meet & Greet",
+   href: "/upcoming_events/meet",
+date: "7-Feb-2026",
+location: "North Carolina",
+image: "/future_events/meet.jpeg",
+description:
+  "An informal evening gathering bringing together physicians and healthcare professionals to connect, network, and build meaningful relationships in a relaxed and welcoming environment.",
+},
+  // {
+  //   title: "Annual Convention",
+  //   date: "2024",
+  //   location: "North Carolina",
+  //   description:
+  //     "This event page will be updated with full details, photos, and highlights once content is finalized.",
+  // },
+  // {
+  //   title: "Eid Banquet",
+  //   date: "2024",
+  //   location: "North Carolina",
+  //   description:
+  //     "Event details, images, and summary will be added soon. Stay tuned for updates.",
+  // },
+  // {
+  //   title: "Spring Picnic",
+  //   date: "2023",
+  //   location: "North Carolina",
+  //   description:
+  //     "Archived event information will be published here once verified.",
+  // },
+  // {
+  //   title: "Winter Gathering",
+  //   date: "2023",
+  //   location: "North Carolina",
+  //   description:
+  //     "This is a placeholder event. Content will be updated as records are finalized.",
+  // },
+  // {
+  //   title: "Professional CME Session",
+  //   date: "2022",
+  //   location: "North Carolina",
+  //   description:
+  //     "Event details and educational highlights will be added soon.",
+  // },
+  // {
+  //   title: "Community Networking Event",
+  //   date: "2022",
+  //   location: "North Carolina",
+  //   description:
+  //     "Past event summary and media will be updated in future.",
+  // },
 ];
 export const metadata = {
   title: "Past Events | APPNA NC 2022–2024 Memories",

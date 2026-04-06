@@ -3,15 +3,16 @@ import Link from "next/link";
 
 
 const events = [
-  {
-   title: "Meet & Greet",
-   href: "/upcoming_events/meet",
-date: "7-Feb-2026",
-location: "North Carolina",
-image: "/future_events/meet.jpeg",
-description:
-  "An informal evening gathering bringing together physicians and healthcare professionals to connect, network, and build meaningful relationships in a relaxed and welcoming environment.",
-},
+ 
+ {
+    title: "Annual Banquet & Entertainment",
+    date: "Saturday, October 10,2026",
+    href: "/upcoming_events/annual_banquet",
+    location: "North Carolina",
+    image: "/future_events/Annual_Banquet.png",
+    description:
+      "A festive evening celebrating Eid with families and community members, promoting unity, cultural connection, and shared values.",
+  },
   {
     title: "Spring Picnic",
     date: "soon...",
@@ -21,15 +22,7 @@ description:
     description:
       "An outdoor family-friendly gathering with recreational activities, food, and opportunities to strengthen community bonds.",
   },
-  {
-    title: "Eid  Banquet",
-    date: "soon...",
-    href: "/upcoming_events/eid_banquet",
-    location: "North Carolina",
-    image: "/future_events/eid_banquet.png",
-    description:
-      "A festive evening celebrating Eid with families and community members, promoting unity, cultural connection, and shared values.",
-  },
+ 
     {
     title: "Annual Convention 2026",
     date: "soon...",

@@ -91,9 +91,9 @@ export default function Announcement() {
             </button>
 
             {/* Image */}
-            <div className="relative h-105">
+            <div className="relative h-120">
               <Image
-                src="/future_events/meet.jpeg"
+                src="/future_events/Annual_Banquet.png"
                 alt="APPNA NC Meet & Greet 2026"
                 fill
                 className="object-cover"
@@ -110,13 +110,12 @@ export default function Announcement() {
                   setOpen(false);
                   setShowFab(true);
                 }}
-                className="inline-flex items-center justify-center w-full rounded-xl bg-[#7a1f3d] px-6 py-3 text-white font-medium hover:bg-[#5f1730] transition"
+                className="inline-flex items-center justify-center w-full rounded-xl bg-[#7a1f3d] px-6 py-1 text-white font-medium hover:bg-[#5f1730] transition"
               >
-Register by January 21              </a>
+                Tickets Details Coming Soon
+           </a>
 
-              <p className="mt-3 text-xs text-gray-500">
-                Secure payment via PayPal
-              </p>
+             
             </div>
           </div>
         </div>
