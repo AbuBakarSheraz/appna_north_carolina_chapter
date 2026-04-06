@@ -1,10 +1,10 @@
 import Image from "next/image";
-import { CalendarDays, MapPin, DollarSign } from "lucide-react";
+import { CalendarDays, MapPin, DollarSign, Sparkles } from "lucide-react";
 
 export const metadata = {
-  title: "Meet & Greet | APPNA NC",
+  title: "Annual Banquet & Entertainment 2026 | APPNA NC",
   description:
-    "Join APPNA NC’s Meet & Greet event to connect with physicians and healthcare professionals in a relaxed and welcoming environment.",
+    "Join APPNA NC's Annual Banquet & Entertainment 2026 — an elegant evening of fine dining, live entertainment, and heartfelt connections with physicians and families across North Carolina.",
 };
 
 export default function EventDetailsPage() {
@@ -15,11 +15,11 @@ export default function EventDetailsPage() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#7a1f3d]">
-            APPNA NC Meet & Greet 2026
+            APPNA NC Annual Banquet & Entertainment 2026
           </h1>
           <p className="mt-4 text-gray-600">
-            An evening of connection, fellowship, and celebration with physicians
-            and families across North Carolina.
+            An elegant evening of fine dining, live entertainment, and heartfelt
+            celebration with physicians and families across North Carolina.
           </p>
         </div>
 
@@ -29,13 +29,21 @@ export default function EventDetailsPage() {
           {/* Image */}
           <div className="relative h-80 lg:h-full">
             <Image
-              src="/future_events/meet.jpeg"
-              alt="APPNA NC Meet and Greet 2026"
+              src="/future_events/Annual_Banquet.png"
+              alt="APPNA NC Annual Banquet & Entertainment 2026"
               fill
               priority
               className="object-cover"
             />
             <div className="absolute inset-0 bg-black/25" />
+
+            {/* Upcoming badge on image */}
+            <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#7a1f3d]" />
+              <span className="text-xs font-semibold text-[#7a1f3d] tracking-wide">
+                Upcoming Event
+              </span>
+            </div>
           </div>
 
           {/* Content */}
@@ -47,46 +55,55 @@ export default function EventDetailsPage() {
 
                 <div className="flex items-center gap-2">
                   <CalendarDays className="w-5 h-5 text-[#7a1f3d]" />
-                  <span>February 7, 2026 · 04:00 PM</span>
+                  <span>October 10, 2026 · 05:00 PM</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-[#7a1f3d]" />
-                  <span>The Palm, Cary, North Carolina</span>
+                  <span>Embassy Suites By Hilton, North Carolina</span>
                 </div>
 
-<div className="flex items-start gap-2">
-  <DollarSign className="w-5 h-5 text-[#7a1f3d] mt-0.5" />
-  <div className="text-gray-600">
-    <p className="font-medium">
-      Registration Fee: <span className="text-gray-900">$85 USD</span>
-    </p>
-    <p className="text-sm text-gray-500 mt-1">
-      Children under 7 years: <span className="font-medium text-gray-700">$55 USD</span>
-    </p>
-  </div>
-</div>
+                <div className="flex items-start gap-2">
+                  <DollarSign className="w-5 h-5 text-[#7a1f3d] mt-0.5" />
+                  <div className="text-gray-600">
+                    <p className="font-medium">
+                      Ticket pricing coming soon
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Register early to secure your spot
+                    </p>
+                  </div>
+                </div>
 
               </div>
 
               {/* Description */}
-              <div className="mt-6 space-y-4 text-gray-700 leading-relaxed">
+              <div className="mt-6 space-y-4 text-gray-700 leading-relaxed text-sm sm:text-base">
                 <p>
-                  APPNA North Carolina warmly invites you and your family to our
-                  **Meet & Greet 2026**, an informal and welcoming gathering
-                  designed to strengthen bonds within our physician community.
+                  APPNA North Carolina is proud to present our much-anticipated
+                  Annual Banquet &amp; Entertainment 2026 — a grand evening
+                  dedicated to celebrating the accomplishments of our chapter
+                  and the bonds that make us a family.
                 </p>
 
                 <p>
-                  The evening will feature a **buffet dinner followed by music**
-                  in a relaxed and elegant setting, offering the perfect
-                  opportunity to connect, network, and celebrate together.
+                  The evening promises an exquisite buffet dinner, live
+                  entertainment, and a beautifully curated program that honors
+                  our community's spirit, achievements, and shared journey
+                  throughout 2026.
                 </p>
 
                 <p>
-                  This event reflects our 2026 theme:
-                  <span className="font-semibold text-[#7a1f3d] mb-4">
-                    {" "}“Connecting Our Chapter as a Family.”
+                  Whether you are a long-standing member or joining us for the
+                  first time, this is the event of the year — a night to dress
+                  up, reconnect with colleagues, and celebrate with your loved
+                  ones in an elegant and welcoming setting.
+                </p>
+
+                <p>
+                  This event is the flagship celebration of our 2026 theme:
+                  <span className="font-semibold text-[#7a1f3d]">
+                    {" "}"Connecting Our Chapter as a Family."
                   </span>
                 </p>
               </div>
@@ -100,7 +117,7 @@ export default function EventDetailsPage() {
                 rel="noopener noreferrer"
                 className="inline-flex justify-center items-center rounded-xl bg-[#7a1f3d] px-8 py-3 text-sm sm:text-base font-medium text-white hover:bg-[#5f1730] transition"
               >
-                Register by January 21
+                Tickets Details Coming Soon
               </a>
 
               <a
@@ -115,7 +132,8 @@ export default function EventDetailsPage() {
 
         {/* Footer Note */}
         <p className="mt-10 text-center text-sm text-gray-500">
-          More details and updates will be shared as the event approaches.
+          More details, ticket pricing, and entertainment lineup will be
+          announced as the event approaches. Stay tuned!
         </p>
       </div>
     </section>
