@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { CalendarDays, MapPin, DollarSign } from "lucide-react";
+import { CalendarDays, MapPin, DollarSign,Trophy } from "lucide-react";
 
 export const metadata = {
   title: "Meet & Greet | APPNA NC",
@@ -36,6 +36,12 @@ export default function EventDetailsPage() {
               className="object-cover"
             />
             <div className="absolute inset-0 bg-black/25" />
+              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-[#7a1f3d]" />
+              <span className="text-xs font-semibold text-[#7a1f3d] tracking-wide">
+                Successfully Completed
+              </span>
+            </div>
           </div>
 
           {/* Content */}
@@ -93,29 +99,28 @@ export default function EventDetailsPage() {
             </div>
 
             {/* CTA */}
-            <div className="mt-10 flex flex-col sm:flex-row gap-4">
+           <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <a
-                href="https://www.paypal.com/ncp/payment/59TCEBZFKT5DU"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/upcoming_events"
                 className="inline-flex justify-center items-center rounded-xl bg-[#7a1f3d] px-8 py-3 text-sm sm:text-base font-medium text-white hover:bg-[#5f1730] transition"
               >
-                Register by January 21
+                View Upcoming Events
               </a>
 
               <a
-                href="/upcoming_events"
+                href="/past_events"
                 className="inline-flex justify-center items-center rounded-xl border border-[#7a1f3d] px-8 py-3 text-sm sm:text-base font-medium text-[#7a1f3d] hover:bg-[#7a1f3d]/5 transition"
               >
-                Back to Events
+                Back to Past Events
               </a>
             </div>
           </div>
         </div>
 
         {/* Footer Note */}
-        <p className="mt-10 text-center text-sm text-gray-500">
-          More details and updates will be shared as the event approaches.
+       <p className="mt-10 text-center text-sm text-gray-500">
+          Thank you to all participants and volunteers who made this event a
+          memorable celebration of health, sport, and community.
         </p>
       </div>
     </section>
