@@ -9,15 +9,19 @@ export default function Announcement() {
   const [showFab, setShowFab] = useState(false);
   const fabRef = useRef(null);
 
-  // Auto close after 3 seconds
+  // Auto close after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
       setOpen(false);
       setShowFab(true);
-    }, 3000);
-
+    }, 5000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleClose = () => {
+    setOpen(false);
+    setShowFab(true);
+  };
 
   // Drag logic
   useEffect(() => {
@@ -68,54 +72,64 @@ export default function Announcement() {
       {/* MODAL */}
       {open && (
         <div
-          className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
-          onClick={() => {
-            setOpen(false);
-            setShowFab(true);
-          }}
+          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8 md:py-12"
+          onClick={handleClose}
         >
-          {/* STOP PROPAGATION */}
+          {/* CARD */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-white max-w-md w-full rounded-2xl shadow-xl overflow-hidden"
+            className="relative bg-white w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            style={{
+              maxWidth: "420px",
+              maxHeight: "calc(100vh - 80px)",
+            }}
           >
             {/* Close Button */}
             <button
-              onClick={() => {
-                setOpen(false);
-                setShowFab(true);
+              onClick={handleClose}
+              aria-label="Close"
+              className="absolute top-3 right-3 z-20 flex items-center justify-center w-8 h-8 rounded-full transition hover:scale-110 active:scale-95"
+              style={{
+                background: "rgba(0,0,0,0.50)",
+                border: "1px solid rgba(255,255,255,0.2)",
               }}
-              className="absolute top-4 right-4 z-10 text-white font-bold"
             >
-              <X size={20} />
+              <X size={15} color="#fff" strokeWidth={2.5} />
             </button>
 
-            {/* Image */}
-            <div className="relative h-120">
+            {/* Image — scrollable if taller than viewport */}
+            <div className="overflow-y-auto flex-1">
               <Image
                 src="/future_events/Annual_Banquet.png"
                 alt="APPNA NC Meet & Greet 2026"
-                fill
-                className="object-cover"
+                width={440}
+                height={600}
+                className="w-full h-auto block"
+                priority
               />
             </div>
 
             {/* CTA */}
-            <div className="p-6 text-center">
+            <div
+              className="flex-shrink-0 px-5 py-4 flex flex-col gap-2"
+              style={{ borderTop: "1px solid #f0f0f0" }}
+            >
               <a
                 href="https://www.paypal.com/ncp/payment/59TCEBZFKT5DU"
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => {
-                  setOpen(false);
-                  setShowFab(true);
+                onClick={handleClose}
+                className="flex items-center justify-center w-full rounded-xl text-white font-semibold text-sm py-3 px-6 transition-all duration-200 hover:opacity-90 active:scale-95"
+                style={{
+                  background: "linear-gradient(135deg, #7a1f3d 0%, #9e2a50 100%)",
+                  boxShadow: "0 4px 14px rgba(122,31,61,0.35)",
                 }}
-                className="inline-flex items-center justify-center w-full rounded-xl bg-[#7a1f3d] px-6 py-1 text-white font-medium hover:bg-[#5f1730] transition"
               >
                 Tickets Details Coming Soon
-           </a>
-
-             
+              </a>
+              {/* <p className="text-center text-[11px] text-gray-400">
+                Secure payment via PayPal
+              </p> */}
             </div>
           </div>
         </div>
@@ -126,17 +140,7 @@ export default function Announcement() {
         <div
           ref={fabRef}
           style={{ top: "15%", right: "8px" }}
-          className="
-            fixed z-90
-            flex items-center justify-center
-            w-17 h-17 rounded-full
-            bg-emerald-500
-            text-[#7a1f3d] text-sm font-medium
-            shadow-lg
-            cursor-move
-            animate-pulse
-            select-none
-          "
+          className="fixed z-[998] flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-lg cursor-move animate-pulse select-none"
           onClick={() => setOpen(true)}
         >
           Event
