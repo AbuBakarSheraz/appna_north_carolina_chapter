@@ -6,13 +6,18 @@ export const metadata = {
   description:
     "Explore the APPNA North Carolina chapter’s gallery showcasing professional, cultural, and community events from 2022 to 2026. Relive memorable gatherings, celebrations, and milestones that strengthen our chapter as one family.",
 };
-
+console.log("Cloudinary Config:", {
+  cloud: process.env.CLOUDINARY_CLOUD_NAME,
+  key: process.env.CLOUDINARY_API_KEY ? "OK" : "MISSING",
+  secret: process.env.CLOUDINARY_API_SECRET ? "OK" : "MISSING",
+});
 const galleryYears = [
     {
     year: "2026",
     description: "Recent events, conventions, and community moments.",
     
   },
+  
   // {
   //   year: "2025",
   //   description: "Recent events, conventions, and community moments.",
