@@ -70,7 +70,10 @@ export async function GET() {
 
     return Response.json(images);
   } catch (error) {
-    console.error("[gallery] Cloudinary fetch error:", error);
-    return Response.json({ error: error.message }, { status: 500 });
-  }
+  console.error("[gallery] FULL ERROR:", error);
+  return Response.json(
+    { error: error.message, stack: error.stack },
+    { status: 500 }
+  );
+}
 }
