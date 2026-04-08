@@ -9,7 +9,11 @@ export async function GET() {
       .sort_by("public_id", "asc")
       .max_results(141)
       .execute();
-
+    console.log("Cloudinary Config:", {
+  cloud: process.env.CLOUDINARY_CLOUD_NAME,
+  key: process.env.CLOUDINARY_API_KEY ? "OK" : "MISSING",
+  secret: process.env.CLOUDINARY_API_SECRET ? "OK" : "MISSING",
+});
     const images = results.resources.map((img) => {
       const base = img.secure_url;
 
