@@ -9,7 +9,7 @@ export const metadata = {
 
 const galleryYears = [
     {
-    year: "2026",
+    year: "APPNA-NC Meet and Greet 2026",
     description: "Recent events, conventions, and community moments.",
     
   },
@@ -43,7 +43,7 @@ function Page() {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <h2 className="text-3xl md:text-4xl font-semibold text-[#7a1f3d]">
-            Gallery
+            2026 Events
           </h2>
           <p className="mt-4 text-gray-600">
             Explore memories from our professional, cultural, and community
@@ -86,7 +86,7 @@ function Page() {
               {/* CTA */}
               <div className="mt-6">
   <Link
-    href="/gallery/2026"
+    href="/gallery/2026/meet-n-greet"
     className="text-sm font-medium text-[#7a1f3d] hover:text-[#5f1730] transition"
   >
     View Gallery →

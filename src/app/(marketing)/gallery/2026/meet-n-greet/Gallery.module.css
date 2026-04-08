@@ -1,0 +1,516 @@
+/* ─── Google Fonts ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ─── Scoped reset + tokens on the root element only ───────────── */
+/* Nothing here touches your global nav / header / footer           */
+
+.galleryRoot *,
+.galleryRoot *::before,
+.galleryRoot *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* CSS variables scoped to the component — won't collide with your  */
+/* existing Tailwind or global :root variables                       */
+.galleryRoot {
+  --c-bg:          #0a0a0a;
+  --c-surface:     #111111;
+  --c-border:      #222222;
+  --c-gold:        #c9a84c;
+  --c-gold-dim:    #7a6230;
+  --c-text:        #e8e0d0;
+  --c-muted:       #5a5248;
+  --c-white:       #ffffff;
+  --radius:        4px;
+  --transition:    0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-display:  'Cormorant Garamond', 'Garamond', 'Georgia', serif;
+  --font-body:     'DM Sans', 'Helvetica Neue', sans-serif;
+
+  min-height: 100vh;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-body);
+}
+
+/* ─── Hero header ───────────────────────────────────────────────── */
+.galleryHero {
+  padding: 80px 48px 48px;
+  text-align: center;
+}
+
+.galleryEyebrow {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+  margin-bottom: 16px;
+  opacity: 0;
+  animation: fadeUp 0.8s 0.1s ease forwards;
+}
+
+.galleryTitle {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 8vw, 120px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+  color: var(--c-white);
+  opacity: 0;
+  animation: fadeUp 0.9s 0.2s ease forwards;
+}
+
+.galleryTitleLine {
+  width: 48px;
+  height: 1px;
+  background: var(--c-gold);
+  margin: 28px auto 0;
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: center;
+  animation: growLine 0.6s 0.5s ease forwards;
+}
+
+/* ─── Main content area ─────────────────────────────────────────── */
+.galleryMain {
+  padding: 8px 24px 80px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.galleryCount {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  margin-bottom: 24px;
+  padding-left: 4px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.6s ease forwards;
+}
+
+/* ─── Masonry grid ──────────────────────────────────────────────── */
+.galleryMasonry {
+  columns: 2 220px;
+  column-gap: 10px;
+}
+
+@media (min-width: 640px)  { .galleryMasonry { columns: 3 200px; } }
+@media (min-width: 1024px) { .galleryMasonry { columns: 4 200px; } }
+@media (min-width: 1400px) { .galleryMasonry { columns: 5 200px; } }
+
+/* ─── Individual tile ───────────────────────────────────────────── */
+.galleryTile {
+  break-inside: avoid;
+  display: block;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border: none;
+  background: var(--c-surface);
+  border-radius: var(--radius);
+  padding: 0;
+  opacity: 0;
+  animation: tileIn 0.6s ease forwards;
+}
+
+.galleryTile:focus-visible {
+  outline: 2px solid var(--c-gold);
+  outline-offset: 2px;
+}
+
+/* blur placeholder — sits behind the real image */
+.tileBlur {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(8px);
+  transform: scale(1.05);
+  transition: opacity 0.5s ease;
+  z-index: 1;
+}
+
+/* main tile image */
+.tileImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform var(--transition);
+  position: relative;
+  z-index: 2;
+}
+
+.tileImgLoaded {
+  opacity: 1;
+}
+
+.galleryTile:hover .tileImg {
+  transform: scale(1.04);
+}
+
+/* hover overlay with zoom icon */
+.tileOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity var(--transition);
+  color: var(--c-white);
+}
+
+.galleryTile:hover .tileOverlay,
+.galleryTile:focus-visible .tileOverlay {
+  opacity: 1;
+}
+
+/* ─── Skeleton loader ───────────────────────────────────────────── */
+.skeletonTile {
+  break-inside: avoid;
+  margin-bottom: 10px;
+  border-radius: var(--radius);
+  background: linear-gradient(
+    90deg,
+    var(--c-surface) 25%,
+    #1a1a1a 50%,
+    var(--c-surface) 75%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* ─── Error / empty states ──────────────────────────────────────── */
+.galleryError,
+.galleryEmpty {
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--c-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.galleryError svg {
+  color: var(--c-gold-dim);
+}
+
+.galleryError button {
+  margin-top: 8px;
+  padding: 10px 28px;
+  border: 1px solid var(--c-gold-dim);
+  background: transparent;
+  color: var(--c-gold);
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background var(--transition), color var(--transition);
+}
+
+.galleryError button:hover {
+  background: var(--c-gold);
+  color: var(--c-bg);
+}
+
+/* ─── Lightbox ──────────────────────────────────────────────────── */
+
+/* The lightbox is position:fixed so it escapes the .galleryRoot    */
+/* DOM subtree — it gets its own scoped reset here                   */
+.lbBackdrop *,
+.lbBackdrop *::before,
+.lbBackdrop *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.lbBackdrop {
+  /* inherit tokens from the parent scope */
+  --c-bg:       #0a0a0a;
+  --c-surface:  #111111;
+  --c-border:   #222222;
+  --c-gold:     #c9a84c;
+  --c-gold-dim: #7a6230;
+  --c-text:     #e8e0d0;
+  --c-muted:    #5a5248;
+  --c-white:    #ffffff;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --font-body:  'DM Sans', 'Helvetica Neue', sans-serif;
+
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(4, 4, 4, 0.97);
+  display: flex;
+  flex-direction: column;
+  animation: lbIn 0.25s ease;
+  font-family: var(--font-body);
+}
+
+.lbHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.lbCounter {
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.lbHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lbBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--c-muted);
+  border-radius: 4px;
+  transition: color var(--transition), background var(--transition);
+  text-decoration: none;
+}
+
+.lbBtn:hover {
+  color: var(--c-white);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lbClose:hover {
+  color: #e06060;
+}
+
+/* stage — holds the image */
+.lbStage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: zoom-in;
+  min-height: 0;
+}
+
+.lbStageZoomed {
+  cursor: zoom-out;
+  overflow: auto;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.lbBlurBg {
+  position: absolute;
+  inset: -10%;
+  width: 120%;
+  height: 120%;
+  object-fit: cover;
+  filter: blur(40px) brightness(0.2);
+  z-index: 0;
+}
+
+.lbImg {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+  border-radius: 2px;
+}
+
+.lbImgLoaded {
+  opacity: 1;
+}
+
+.lbImgZoom {
+  max-width: none;
+  max-height: none;
+  width: 200%;
+  height: auto;
+}
+
+/* spinner */
+.lbSpinner {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinnerRing {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--c-border);
+  border-top-color: var(--c-gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* prev / next arrows */
+.lbNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--c-muted);
+  transition: all var(--transition);
+  backdrop-filter: blur(8px);
+}
+
+.lbNav:hover {
+  background: rgba(201, 168, 76, 0.15);
+  border-color: var(--c-gold-dim);
+  color: var(--c-gold);
+}
+
+.lbNavPrev { left: 16px; }
+.lbNavNext { right: 16px; }
+
+@media (max-width: 480px) {
+  .lbNav { width: 40px; height: 40px; }
+  .lbNavPrev { left: 8px; }
+  .lbNavNext { right: 8px; }
+}
+
+/* filmstrip */
+.lbFilmstrip {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  overflow-x: auto;
+  flex-shrink: 0;
+  border-top: 1px solid var(--c-border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border) transparent;
+  scroll-snap-type: x mandatory;
+}
+
+.lbFilmstrip::-webkit-scrollbar { height: 3px; }
+.lbFilmstrip::-webkit-scrollbar-thumb {
+  background: var(--c-border);
+  border-radius: 2px;
+}
+
+.lbThumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 46px;
+  overflow: hidden;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  padding: 0;
+  background: var(--c-surface);
+  opacity: 0.5;
+  transition: opacity var(--transition), border-color var(--transition), transform var(--transition);
+  scroll-snap-align: center;
+}
+
+.lbThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lbThumbActive {
+  opacity: 1;
+  border-color: var(--c-gold);
+  transform: scale(1.05);
+}
+
+.lbThumb:hover:not(.lbThumbActive) {
+  opacity: 0.8;
+  border-color: var(--c-border);
+}
+
+/* ─── Keyframes ─────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes growLine {
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes tileIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes lbIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Reduced motion ────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .galleryEyebrow,
+  .galleryTitle,
+  .galleryTitleLine,
+  .galleryCount,
+  .galleryTile,
+  .lbBackdrop {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .tileImg {
+    transition: opacity 0.2s;
+  }
+}
