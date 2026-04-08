@@ -1,5 +1,4 @@
 // app/api/gallery/route.js
-"use server"
 
 import cloudinary from "../../../lib/cloudinary";
 
