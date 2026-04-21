@@ -11,7 +11,7 @@ const events = [
     location: "North Carolina",
     image: "/future_events/Annual_Banquet.png",
     description:
-      "A festive evening celebrating Eid with families and community members, promoting unity, cultural connection, and shared values.",
+      "A festive evening celebration with families and community members, promoting unity, cultural connection, and shared values.",
   },
   {
     title: "Spring Picnic",
