@@ -14,25 +14,6 @@ const events = [
       "A festive evening celebration with families and community members, promoting unity, cultural connection, and shared values.",
   },
   {
-    title: "Spring Picnic",
-    date: "soon...",
-    location: "North Carolina",
-    href: "/upcoming_events/spring_picnic",
-    image: "/future_events/spring_picnic.png",
-    description:
-      "An outdoor family-friendly gathering with recreational activities, food, and opportunities to strengthen community bonds.",
-  },
- 
-    {
-    title: "Annual Convention 2026",
-    date: "soon...",
-    href: "/upcoming_events/annual_convocation",
-    location: "North Carolina",
-    image: "/future_events/convention.png",
-    description:
-      "A flagship gathering of physicians, leaders, and healthcare professionals featuring CME sessions, keynote speakers, and networking opportunities.",
-  },
-  {
     title: "Winter GTG",
     date: "soon...",
     href: "/upcoming_events/winter_gtg",

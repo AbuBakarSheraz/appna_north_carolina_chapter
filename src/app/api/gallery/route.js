@@ -7,7 +7,7 @@ export async function GET() {
     const results = await cloudinary.search
       .expression("resource_type:image")
       .sort_by("public_id", "asc")
-      .max_results(141)
+      .max_results(113)
       .execute();
 
     const images = results.resources.map((img) => {
