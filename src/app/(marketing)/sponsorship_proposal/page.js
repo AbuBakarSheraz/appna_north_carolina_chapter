@@ -109,7 +109,7 @@ const benefits = [
 export const metadata = {
   title: "Sponsorship | APPNA NC Annual Banquet & Entertainment 2026",
   description:
-    "Sponsor the APPNA North Carolina Annual Banquet & Entertainment 2026. Choose from Platinum, Gold, Silver, or Bronze packages and connect with 18,000+ physicians and healthcare professionals.",
+    "Sponsor the APPNA North Carolina Annual Banquet & Entertainment 2026. Choose from Platinum, Gold, Silver, or Bronze packages and connect physicians and healthcare professionals.",
 };
 
 export default function SponsorshipPage() {
@@ -124,15 +124,15 @@ export default function SponsorshipPage() {
 
         <div className="relative px-6 sm:px-10 lg:px-18 text-center max-w-3xl mx-auto">
           <span className="inline-block mb-4 px-4 py-1 rounded-full bg-white/15 text-white text-xs font-semibold uppercase tracking-widest">
-            October 10th, 2026 · Embassy Suites, Durham
+            October 10th, 2026 · Embassy Suites, Raleigh
           </span>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight">
             Sponsorship Opportunities
           </h1>
           <p className="mt-5 text-white/80 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-            Partner with APPNA North Carolina and connect your brand with over{" "}
-            <span className="text-white font-semibold">18,000 physicians</span>{" "}
-            and healthcare professionals at our Annual Banquet &amp; Entertainment 2026.
+            Partner with APPNA North Carolina and connect your brand with {" "}
+            <span className="text-white font-semibold">physicians and their families</span>{" "}
+            at our Annual Banquet &amp; Entertainment 2026.
           </p>
         </div>
       </section>
