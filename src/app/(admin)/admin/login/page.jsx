@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
                   </div>
                 )}
                 <FloatingInput id="email" label="Admin email" type="email" value={email}
-                  onChange={(e) => setEmail(e.target.value)} placeholder="admin@appnanc.org" />
+                  onChange={(e) => setEmail(e.target.value)} />
                 <FloatingInput id="password" label="Password" type={showPass ? 'text' : 'password'}
                   value={password} onChange={(e) => setPassword(e.target.value)}
                   rightSlot={
