@@ -30,7 +30,7 @@
     "**/*.mts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/app/(marketing)/contact_us/page.js"  ],
   "exclude": [
     "node_modules"
   ]

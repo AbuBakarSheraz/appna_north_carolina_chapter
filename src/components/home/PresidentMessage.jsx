@@ -23,12 +23,12 @@ export default function PresidentMessage() {
             <div className="relative">
               <div className="absolute -inset-2 rounded-2xl bg-[#7a1f3d]/10" />
               <Image
-                src="/president.png"
-                alt="Dr. Sohail Sarwar, President APPNA NC"
-                width={360}
-                height={420}
-                className="relative rounded-2xl object-cover shadow-md"
-              />
+  src="/president.png"
+  alt="Dr. Sohail Sarwar, President APPNA NC"
+  width={360}
+  height={420}
+  className="relative rounded-2xl object-cover shadow-md w-48 sm:w-64 lg:w-full"
+/>
             </div>
           </div>
 
