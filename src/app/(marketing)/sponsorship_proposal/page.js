@@ -69,7 +69,7 @@ const packages = [
   },
   {
     tier: "Bronze",
-    price: "$2,000",
+    price: "$1,000",
     color: "#92400e",
     bg: "#92400e",
     lightBg: "#fffbf5",
@@ -78,8 +78,6 @@ const packages = [
     badge: null,
     perks: [
       { icon: Users, label: "Booth presence" },
-      { icon: BookOpen, label: "Mention in event brochure" },
-      { icon: Mail, label: "Included in promotional emails" },
       { icon: Ticket, label: "1 complimentary event ticket" },
     ],
   },
