@@ -112,12 +112,11 @@ export default function EventDetailsPage() {
             {/* CTA */}
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <a
-                href="https://www.paypal.com/ncp/payment/59TCEBZFKT5DU"
-                target="_blank"
+                href="/events"
                 rel="noopener noreferrer"
                 className="inline-flex justify-center items-center rounded-xl bg-[#7a1f3d] px-8 py-3 text-sm sm:text-base font-medium text-white hover:bg-[#5f1730] transition"
               >
-                Tickets Details Coming Soon
+                Buy Tickets online
               </a>
 
               <a

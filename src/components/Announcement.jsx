@@ -115,7 +115,7 @@ export default function Announcement() {
               style={{ borderTop: "1px solid #f0f0f0" }}
             >
               <a
-                href="https://www.paypal.com/ncp/payment/59TCEBZFKT5DU"
+                href="/events"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClose}
@@ -125,7 +125,7 @@ export default function Announcement() {
                   boxShadow: "0 4px 14px rgba(122,31,61,0.35)",
                 }}
               >
-                Tickets Details Coming Soon
+                Buy Tickets Online
               </a>
               {/* <p className="text-center text-[11px] text-gray-400">
                 Secure payment via PayPal
