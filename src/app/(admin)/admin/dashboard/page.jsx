@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   Users, Clock, CheckCircle2, BarChart2, ShieldCheck,
   LogOut, Search, ChevronLeft, ChevronRight, Check,
-  X, RefreshCw, Loader2, Eye, AlertTriangle, TrendingUp,
+  X, RefreshCw, Loader2, Eye, AlertTriangle, TrendingUp,CalendarDays,
 } from 'lucide-react';
 import {
   getAdminStats, getAdminUsers,
@@ -416,6 +416,7 @@ export default function AdminDashboardPage() {
   const TABS = [
     { key: 'pending', label: 'Pending Payments', icon: Clock,  badge: stats?.pendingPayments },
     { key: 'members', label: 'All Members',       icon: Users,  badge: stats?.totalUsers },
+    { key: 'events',  label: 'Events',            icon: CalendarDays, badge: stats?.totalEvents, href: '/admin/events' },
   ];
 
   return (
@@ -453,9 +454,9 @@ export default function AdminDashboardPage() {
           <nav className="flex-1 px-3 py-4 space-y-1">
             {TABS.map((t) => {
               const Icon = t.icon;
-              const active = tab === t.key;
+              const active = !t.href && tab === t.key;
               return (
-                <button key={t.key} onClick={() => setTab(t.key)}
+                <button key={t.key} onClick={() => t.href ? router.push(t.href) : setTab(t.key)}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
                   style={{ background: active ? 'rgba(255,255,255,0.12)' : 'transparent', color: active ? 'white' : 'rgba(255,255,255,0.55)' }}>
                   <Icon size={16} />
@@ -499,9 +500,9 @@ export default function AdminDashboardPage() {
               {TABS.map((t) => {
                 const Icon = t.icon;
                 return (
-                  <button key={t.key} onClick={() => setTab(t.key)}
+                  <button key={t.key} onClick={() => t.href ? router.push(t.href) : setTab(t.key)}
                     className="relative flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-all"
-                    style={{ background: tab === t.key ? '#1a2744' : '#f3f4f6', color: tab === t.key ? 'white' : '#6b7280' }}>
+                    style={{ background: tab === t.key && !t.href ? '#1a2744' : '#f3f4f6', color: tab === t.key && !t.href ? 'white' : '#6b7280' }}>
                     <Icon size={13} />
                     {t.label.split(' ')[0]}
                     {t.badge > 0 && tab !== t.key && (

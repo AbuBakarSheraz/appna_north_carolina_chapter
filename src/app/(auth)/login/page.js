@@ -66,16 +66,29 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
 
-  const submit = async () => {
+  const submit = async (event) => {
+    event?.preventDefault();
+    setError('');
     try {
       setLoading(true);
       const { data } = await login({ email, password });
       setAccessToken(data.access_token);
       router.push('/dashboard');
-    } catch {
-      alert('Invalid credentials');
+    } catch (err) {
+      if (err.code === 'ECONNABORTED') {
+        setError('Login timed out. Please check your connection and try again.');
+      } else if (!err.response) {
+        setError('Unable to reach the server. Please try again in a moment.');
+      } else if (err.response.status === 401) {
+        setError(err.response.data?.message || 'Invalid email or password.');
+      } else if (err.response.status >= 500) {
+        setError('Server error. Please try again shortly.');
+      } else {
+        setError(err.response.data?.message || 'Unable to sign in.');
+      }
     } finally {
       setLoading(false);
     }
@@ -204,7 +217,7 @@ export default function LoginPage() {
               </div>
 
               {/* Form */}
-              <div className="space-y-5 fade-in" style={{ animationDelay: '0.08s' }}>
+              <form onSubmit={submit} className="space-y-5 fade-in" style={{ animationDelay: '0.08s' }}>
 
                 <FloatingInput
                   id="email"
@@ -245,9 +258,15 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                {error && (
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+
                 {/* CTA */}
                 <button
-                  onClick={submit}
+                  type="submit"
                   disabled={loading || !email || !password}
                   className="accent-btn w-full rounded-xl text-white py-3.5 text-sm font-semibold tracking-wide disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
@@ -277,7 +296,7 @@ export default function LoginPage() {
                   Create an account
                 </Link>
 
-              </div>
+              </form>
             </div>
           </main>
 

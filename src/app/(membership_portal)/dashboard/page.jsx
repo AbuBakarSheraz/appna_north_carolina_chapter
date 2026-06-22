@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   CheckCircle2, ArrowRight, User, Stethoscope,
   MapPin, Building2, CreditCard, Bell, Calendar,
-  Users, BookOpen, Loader2, LogOut, ChevronRight,
+  Users, BookOpen, Loader2, LogOut, ChevronRight, Ticket,
   Download, Shield, Lock, Award, Sparkles,
 } from 'lucide-react';
 import { getFullProfile } from '../../../lib/profile';
@@ -25,13 +25,15 @@ const PROFILE_STEPS = [
 ];
 
 const DASHBOARD_CARDS = [
-  { label: 'Member Directory', icon: Users,    desc: 'Browse fellow APPNA NC physicians',  href: '/directory',  color: '#7a1f3d' },
-  { label: 'Upcoming Events',  icon: Calendar, desc: 'CME workshops, dinners & galas',     href: '/events',     color: '#1a5276' },
-  { label: 'Resources',        icon: BookOpen, desc: 'Clinical guidelines & publications', href: '/resources',  color: '#1a6639' },
-  { label: 'Announcements',    icon: Bell,     desc: 'Chapter news and updates',           href: '/news',       color: '#7d6608' },
+  { label: 'Memberships',   icon: CreditCard, desc: 'View your APPNA NC membership', href: '/dashboard',      color: '#7a1f3d' },
+  { label: 'Events',        icon: Calendar,   desc: 'Browse upcoming registrations', href: '/events',         color: '#1a5276' },
+  { label: 'Tickets',       icon: Ticket,     desc: 'See every event pass status',   href: '/tickets',        color: '#1a6639' },
+  { label: 'Payments',      icon: CreditCard, desc: 'Track payment-related updates', href: '/notifications',  color: '#6f4e7c' },
+  { label: 'Profile',       icon: User,       desc: 'Maintain your member profile',  href: '/complete-profile', color: '#5b5f97' },
+  { label: 'Notifications', icon: Bell,       desc: 'Read portal and ticket updates', href: '/notifications', color: '#7d6608' },
 ];
 
-const PLAN_LABELS = { STUDENT: 'Student Member', ANNUAL: 'Annual Member', LIFETIME: 'Lifetime Member' };
+const PLAN_LABELS = { STUDENT: 'Resident / Fellow in Training', ANNUAL: 'Annual Member', LIFETIME: 'Lifetime Member' };
 const PLAN_COLORS = { STUDENT: '#4a7c59', ANNUAL: '#7a1f3d', LIFETIME: '#1a3a5c' };
 
 // ─────────────────────────────────────────────────────────────────
@@ -44,12 +46,13 @@ const PLAN_COLORS = { STUDENT: '#4a7c59', ANNUAL: '#7a1f3d', LIFETIME: '#1a3a5c'
 function MembershipCardSection({ profile }) {
   const isActive  = profile?.membership?.isActive;
   const isComplete = profile?.isProfileCompleted;
+  const isPaidPending = profile?.membership?.paymentStatus === 'PAID';
 
+  if (!isActive && isPaidPending) {
+    return <PendingCardTeaser />;
+  }
   if (!isComplete && !isActive) {
     return <LockedCardTeaser profileStep={profile?.profileStep ?? 0} />;
-  }
-  if (isComplete && !isActive) {
-    return <PendingCardTeaser />;
   }
   return <ActiveMembershipCard profile={profile} />;
 }

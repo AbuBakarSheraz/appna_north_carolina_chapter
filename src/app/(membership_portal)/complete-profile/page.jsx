@@ -17,6 +17,7 @@ import {
   saveOfficeInfo,
   skipOfficeInfo,
   selectMembership,
+  createPayPalOrder,
 } from '../../../lib/profile';
 
 const STEPS = [
@@ -59,18 +60,18 @@ const PANEL_CONTENT = {
   5: {
     heading: 'Choose your\nmembership.',
     sub: 'Select the plan that fits your career stage. All plans include full chapter access.',
-    tips: ['Annual memberships renew after 1 year', 'Secure payment powered by Stripe'],
+    tips: ['Annual memberships expire on December 31', 'Secure checkout through PayPal'],
   },
 };
 
 const MEMBERSHIP_PLANS = [
   {
-    type: 'STUDENT', label: 'Student', price: 'Free', period: '/ year',
-    desc: 'For medical students & residents', accent: '#4a7c59',
+    type: 'STUDENT', label: 'Resident / Fellow in Training', price: 'Free', period: 'through Dec 31',
+    desc: 'For Pakistani-origin physicians currently in residency or fellowship training', accent: '#4a7c59',
     perks: ['Community access', 'Educational events', 'Mentorship program'],
   },
   {
-    type: 'ANNUAL', label: 'Annual', price: 200, period: '/ year',
+    type: 'ANNUAL', label: 'Annual', price: 200, period: 'through Dec 31',
     desc: 'Full access for active physicians', accent: '#7a1f3d', popular: true,
     perks: ['All community features', 'CME events & workshops', 'Networking dinners', 'Voting rights'],
   },
@@ -494,217 +495,67 @@ function Step4Office({ onNext, onBack, initialData }) {
   );
 }
 
-// Drop-in replacement for Step5Membership inside complete-profile/page.jsx
-// Also update the dashboard to show the pending banner — shown at the bottom.
-
-// ─── Add this to your lib/profile.js ─────────────────────────────
-// export const getPayPalLink = () => api.get('/profile/paypal-link');
-// (or just hardcode the link as an env var — see below)
-
-// ─── ENV VAR in .env.local ────────────────────────────────────────
-// NEXT_PUBLIC_PAYPAL_LINK=https://www.paypal.com/paypalme/yourappnanc
-// ─────────────────────────────────────────────────────────────────
-
-const PAYPAL_LINK = process.env.NEXT_PUBLIC_PAYPAL_LINK ?? '#'
-
 const PAYPAL_AMOUNTS = {
   STUDENT: 0,
   ANNUAL: 200,
   LIFETIME: 500,
-}
+};
 
-function Step5Membership({ onNext, onBack, initialData }) {
-
-  const router = useRouter()
-
-  const [selected, setSelected] = useState(initialData?.type ?? 'ANNUAL')
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+function Step5Membership({ onBack, initialData }) {
+  const router = useRouter();
+  const [selected, setSelected] = useState(initialData?.type ?? 'ANNUAL');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (initialData?.type && initialData?.isActive === false) {
-      setSelected(initialData.type)
-      setSubmitted(true)
-    }
-  }, [initialData])
+    if (initialData?.type) setSelected(initialData.type);
+  }, [initialData]);
+
+  const selectedPlan = MEMBERSHIP_PLANS.find((plan) => plan.type === selected);
+  const selectedAmount = PAYPAL_AMOUNTS[selected];
 
   const handleSelectPlan = async () => {
-
-    setError('')
-    setLoading(true)
+    setError('');
+    setLoading(true);
 
     try {
+      const res = await selectMembership({ type: selected });
+      const responseData = res?.data?.data ?? res?.data;
 
-      const res = await selectMembership({ type: selected })
-
-      const responseData = res?.data?.data ?? res?.data
-
-      // ⭐ STUDENT membership activates instantly
       if (responseData?.isActive === true) {
-        router.push('/dashboard')
-        return
+        router.push('/dashboard');
+        return;
       }
 
-      // Paid plans → show PayPal step
-      setSubmitted(true)
-
+      const { data } = await createPayPalOrder();
+      window.location.href = data.approveUrl;
     } catch (err) {
-
       setError(
         err?.response?.data?.message ||
-        'Failed to save selection. Please try again.'
-      )
-
+        'Failed to start PayPal checkout. Please try again.'
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
-  const plan = MEMBERSHIP_PLANS.find(p => p.type === selected)
-  const amount = PAYPAL_AMOUNTS[selected]
-
-  const paypalHref =
-    selected === 'STUDENT'
-      ? null
-      : `${PAYPAL_LINK}/${amount}USD`
-
-  if (submitted) {
-    return (
-      <div className="space-y-5 step-enter">
-
-        {/* Plan Summary */}
-        <div
-          className="rounded-2xl border-2 p-4 bg-white"
-          style={{ borderColor: plan?.accent ?? '#7a1f3d' }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-gray-400 font-semibold uppercase tracking-widest mb-0.5">
-                Selected Plan
-              </p>
-
-              <p className="font-bold text-gray-900">
-                {plan?.label} Membership
-              </p>
-
-              <p className="text-xs text-gray-500 mt-0.5">
-                {plan?.desc}
-              </p>
-            </div>
-
-            <div className="text-right">
-              <p
-                className="text-2xl font-bold"
-                style={{ color: plan?.accent }}
-              >
-                {amount === 0 ? 'Free' : `$${amount}`}
-              </p>
-
-              <p className="text-[10px] text-gray-400">
-                {plan?.period}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Student path */}
-        {amount === 0 ? (
-          <div className="rounded-xl bg-green-50 border border-green-200 p-4 text-sm text-green-800">
-            <p className="font-semibold mb-1">
-              Student membership activated!
-            </p>
-
-            <p className="text-xs text-green-700">
-              Your free student membership has been activated successfully.
-              You now have full access to your dashboard.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-
-            <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3 text-sm text-blue-800 flex items-start gap-2">
-              <span className="mt-0.5 flex-shrink-0">💡</span>
-
-              <div>
-                <p className="font-semibold">
-                  How payment works
-                </p>
-
-                <p className="text-xs mt-0.5 text-blue-700 leading-relaxed">
-                  Click the button below to pay via PayPal.
-                  Once your payment is received, an admin will confirm
-                  and activate your membership.
-                </p>
-              </div>
-            </div>
-
-            <a
-              href={paypalHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-3 w-full rounded-xl py-4 text-white font-bold text-sm tracking-wide transition-all hover:-translate-y-0.5"
-              style={{
-                background:
-                  'linear-gradient(135deg, #003087, #009cde)',
-                boxShadow:
-                  '0 4px 16px rgba(0,144,222,0.35)',
-              }}
-            >
-              <span className="text-base">🅿</span>
-              Pay ${amount} with PayPal
-            </a>
-          </div>
-        )}
-
-        {/* Pending notice */}
-        {amount !== 0 && (
-          <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-start gap-3">
-            <span className="text-amber-500 mt-0.5 flex-shrink-0">
-              ⏳
-            </span>
-
-            <div>
-              <p className="text-sm font-semibold text-amber-800">
-                Awaiting admin confirmation
-              </p>
-
-              <p className="text-xs text-amber-700 mt-0.5 leading-relaxed">
-                After payment, an admin will verify and activate your membership.
-                You’ll gain full access once confirmed.
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div className="flex gap-3 pt-1">
-          <GhostBtn
-            onClick={() => setSubmitted(false)}
-            icon={ArrowLeft}
-          >
-            Change Plan
-          </GhostBtn>
-        </div>
-      </div>
-    )
-  }
+  };
 
   return (
     <div className="space-y-4 step-enter">
-
       <ErrorBanner message={error} />
 
-      {MEMBERSHIP_PLANS.map(plan => (
+      <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+        <p className="font-semibold">Annual memberships expire on December 31.</p>
+        <p className="text-xs mt-0.5 text-blue-700 leading-relaxed">
+          Paid plans continue to PayPal checkout, where eligible users can pay with PayPal, Venmo, debit cards, or credit cards.
+        </p>
+      </div>
+
+      {MEMBERSHIP_PLANS.map((plan) => (
         <button
           key={plan.type}
           type="button"
           onClick={() => setSelected(plan.type)}
-          style={{
-            borderColor:
-              selected === plan.type
-                ? plan.accent
-                : '#e5e7eb',
-          }}
+          style={{ borderColor: selected === plan.type ? plan.accent : '#e5e7eb' }}
           className="relative w-full text-left rounded-2xl border-2 p-4 transition-all duration-200 hover:border-gray-300 bg-white"
         >
           {plan.popular && (
@@ -717,42 +568,27 @@ function Step5Membership({ onNext, onBack, initialData }) {
           )}
 
           <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-
-              <p className="font-semibold text-gray-900 text-sm mb-0.5">
-                {plan.label}
-              </p>
-
-              <p className="text-xs text-gray-500 mb-2">
-                {plan.desc}
-              </p>
-
+            <div className="flex-1 pr-7">
+              <p className="font-semibold text-gray-900 text-sm mb-0.5">{plan.label}</p>
+              <p className="text-xs text-gray-500 mb-2">{plan.desc}</p>
               <div className="flex flex-wrap gap-1.5">
-                {plan.perks.map(p => (
+                {plan.perks.map((perk) => (
                   <span
-                    key={p}
+                    key={perk}
                     className="inline-flex items-center gap-1 text-[10px] text-gray-500 bg-gray-50 rounded-full px-2 py-0.5"
                   >
                     <Check size={8} strokeWidth={3} className="text-green-500" />
-                    {p}
+                    {perk}
                   </span>
                 ))}
               </div>
             </div>
 
             <div className="text-right shrink-0">
-              <div
-                className="text-xl font-bold"
-                style={{ color: plan.accent }}
-              >
-                {PAYPAL_AMOUNTS[plan.type] === 0
-                  ? 'Free'
-                  : `$${PAYPAL_AMOUNTS[plan.type]}`}
+              <div className="text-xl font-bold" style={{ color: plan.accent }}>
+                {PAYPAL_AMOUNTS[plan.type] === 0 ? 'Free' : `$${PAYPAL_AMOUNTS[plan.type]}`}
               </div>
-
-              <div className="text-[10px] text-gray-400">
-                {plan.period}
-              </div>
+              <div className="text-[10px] text-gray-400">{plan.period}</div>
             </div>
           </div>
 
@@ -767,31 +603,20 @@ function Step5Membership({ onNext, onBack, initialData }) {
         </button>
       ))}
 
-      <div className="flex gap-3 pt-1">
-        <GhostBtn onClick={onBack} icon={ArrowLeft}>
-          Back
-        </GhostBtn>
+      <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700 leading-relaxed">
+        After PayPal confirms a paid membership, APPNA NC will review it and email your login confirmation within 24 hours.
+      </div>
 
-        <PrimaryBtn
-          onClick={handleSelectPlan}
-          loading={loading}
-        >
-          Continue
+      <div className="flex gap-3 pt-1">
+        <GhostBtn onClick={onBack} icon={ArrowLeft}>Back</GhostBtn>
+        <PrimaryBtn onClick={handleSelectPlan} loading={loading}>
+          {selectedAmount === 0 ? 'Activate Free Membership' : `Pay $${selectedPlan?.price} with PayPal`}
           <ArrowRight size={15} />
         </PrimaryBtn>
       </div>
     </div>
-  )
+  );
 }
-
-// In your DashboardPage, update the conditional render to:
-//
-// {!profile?.isProfileCompleted && profile?.membership?.isActive === false && profile?.membership?.type
-//   ? <PendingPaymentBanner membership={profile.membership} />
-//   : !profile?.isProfileCompleted
-//     ? <ProfileCompletionBanner profileStep={profile?.profileStep ?? 0} />
-//     : <CompletedDashboard profile={profile} />
-// }
 
 // ── MAIN PAGE ──
 export default function CompleteProfilePage() {

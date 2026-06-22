@@ -44,6 +44,8 @@ export const skipOfficeInfo = () =>
 export const selectMembership = (data) =>
   api.post('/profile/membership', data);
 
-/** Call after successful payment to activate membership. */
-export const confirmPayment = () =>
-  api.patch('/profile/membership/confirm');
+export const createPayPalOrder = () =>
+  api.post('/profile/membership/paypal/create-order');
+
+export const capturePayPalOrder = (orderId) =>
+  api.post('/profile/membership/paypal/capture', { orderId });
