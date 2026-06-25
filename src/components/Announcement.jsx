@@ -3,15 +3,21 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { X } from "lucide-react";
-
+import { usePathname } from "next/navigation";
 export default function Announcement() {
+  const pathname = usePathname();
+ console.log("pathname:", pathname);
+  // Hide announcement on events pages
+  if (pathname.startsWith("/events")) {
+    return null;
+  }
   const [open, setOpen] = useState(true);
   const [showFab, setShowFab] = useState(false);
   const fabRef = useRef(null);
 
   // Auto close after 5 seconds
   useEffect(() => {
-  const hasSeenAnnouncement = sessionStorage.getItem("appna-announcement-seen");
+  const hasSeenAnnouncement = localStorage.getItem("appna-announcement-seen");
 
   if (hasSeenAnnouncement) {
     setOpen(false);
@@ -23,7 +29,7 @@ export default function Announcement() {
     setOpen(false);
     setShowFab(true);
 
-    sessionStorage.setItem("appna-announcement-seen", "true");
+    localStorage.setItem("appna-announcement-seen", "true");
   }, 5000);
 
   return () => clearTimeout(timer);
@@ -33,7 +39,7 @@ const handleClose = () => {
   setOpen(false);
   setShowFab(true);
 
-  sessionStorage.setItem("appna-announcement-seen", "true");
+  localStorage.setItem("appna-announcement-seen", "true");
 };
 
   // Drag logic
@@ -129,7 +135,7 @@ const handleClose = () => {
             >
               <a
                 href="/events"
-                target="_blank"
+                // target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleClose}
                 className="flex items-center justify-center w-full rounded-xl text-white font-semibold text-sm py-3 px-6 transition-all duration-200 hover:opacity-90 active:scale-95"
