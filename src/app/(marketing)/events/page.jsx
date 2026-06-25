@@ -6,7 +6,12 @@ import { CalendarDays, Loader2, MapPin, Ticket } from 'lucide-react';
 import { listEvents } from '../../../lib/events';
 
 function formatDate(value) {
-  return new Date(value).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  return new Date(value).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
 }
 
 export default function EventsPage() {
