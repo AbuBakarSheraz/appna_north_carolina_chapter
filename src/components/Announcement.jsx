@@ -11,17 +11,30 @@ export default function Announcement() {
 
   // Auto close after 5 seconds
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setOpen(false);
-      setShowFab(true);
-    }, 5000);
-    return () => clearTimeout(timer);
-  }, []);
+  const hasSeenAnnouncement = sessionStorage.getItem("appna-announcement-seen");
 
-  const handleClose = () => {
+  if (hasSeenAnnouncement) {
     setOpen(false);
     setShowFab(true);
-  };
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    setOpen(false);
+    setShowFab(true);
+
+    sessionStorage.setItem("appna-announcement-seen", "true");
+  }, 5000);
+
+  return () => clearTimeout(timer);
+}, []);
+
+const handleClose = () => {
+  setOpen(false);
+  setShowFab(true);
+
+  sessionStorage.setItem("appna-announcement-seen", "true");
+};
 
   // Drag logic
   useEffect(() => {

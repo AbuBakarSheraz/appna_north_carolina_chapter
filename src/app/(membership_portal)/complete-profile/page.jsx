@@ -18,7 +18,9 @@ import {
   skipOfficeInfo,
   selectMembership,
   createPayPalOrder,
+  capturePayPalOrder,
 } from '../../../lib/profile';
+import PayPalPaymentOptions from '../../../components/payments/PayPalPaymentOptions';
 
 const STEPS = [
   { id: 1, label: 'Basic Info',  icon: User        },
@@ -506,6 +508,7 @@ function Step5Membership({ onBack, initialData }) {
   const [selected, setSelected] = useState(initialData?.type ?? 'ANNUAL');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   useEffect(() => {
     if (initialData?.type) setSelected(initialData.type);
@@ -514,8 +517,9 @@ function Step5Membership({ onBack, initialData }) {
   const selectedPlan = MEMBERSHIP_PLANS.find((plan) => plan.type === selected);
   const selectedAmount = PAYPAL_AMOUNTS[selected];
 
-  const handleSelectPlan = async () => {
+  const startHostedCheckout = async () => {
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
@@ -539,14 +543,43 @@ function Step5Membership({ onBack, initialData }) {
     }
   };
 
+  const createMembershipPaymentOrder = useCallback(async () => {
+    setError('');
+    setSuccess('');
+    const res = await selectMembership({ type: selected });
+    const responseData = res?.data?.data ?? res?.data;
+
+    if (responseData?.isActive === true) {
+      router.push('/dashboard');
+      return null;
+    }
+
+    const { data } = await createPayPalOrder();
+    return { orderId: data.orderId };
+  }, [router, selected]);
+
+  const captureMembershipPaymentOrder = useCallback(async (orderId) => {
+    await capturePayPalOrder(orderId);
+    setSuccess('Payment received. APPNA NC will review it and email your login confirmation within 24 hours.');
+  }, []);
+
+  const handlePaymentError = useCallback((err) => {
+    setError(err?.response?.data?.message || err?.message || 'Payment could not be completed.');
+  }, []);
+
   return (
     <div className="space-y-4 step-enter">
       <ErrorBanner message={error} />
+      {success && (
+        <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm leading-relaxed text-green-700">
+          {success}
+        </div>
+      )}
 
       <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
         <p className="font-semibold">Annual memberships expire on December 31.</p>
         <p className="text-xs mt-0.5 text-blue-700 leading-relaxed">
-          Paid plans continue to PayPal checkout, where eligible users can pay with PayPal, Venmo, debit cards, or credit cards.
+          Paid plans can be completed with PayPal, debit or credit card, and Apple Pay on eligible devices.
         </p>
       </div>
 
@@ -607,12 +640,26 @@ function Step5Membership({ onBack, initialData }) {
         After PayPal confirms a paid membership, APPNA NC will review it and email your login confirmation within 24 hours.
       </div>
 
+      {selectedAmount > 0 ? (
+        <PayPalPaymentOptions
+          amount={selectedAmount}
+          description={`${selectedPlan?.label} membership`}
+          disabled={loading || !!success}
+          createOrder={createMembershipPaymentOrder}
+          onApprove={captureMembershipPaymentOrder}
+          onError={handlePaymentError}
+          fallbackLabel={`Pay $${selectedAmount} with hosted PayPal checkout`}
+          onFallbackCheckout={startHostedCheckout}
+        />
+      ) : null}
+
       <div className="flex gap-3 pt-1">
         <GhostBtn onClick={onBack} icon={ArrowLeft}>Back</GhostBtn>
-        <PrimaryBtn onClick={handleSelectPlan} loading={loading}>
-          {selectedAmount === 0 ? 'Activate Free Membership' : `Pay $${selectedPlan?.price} with PayPal`}
-          <ArrowRight size={15} />
-        </PrimaryBtn>
+        {selectedAmount === 0 ? (
+          <PrimaryBtn onClick={startHostedCheckout} loading={loading}>
+            Activate Free Membership <ArrowRight size={15} />
+          </PrimaryBtn>
+        ) : null}
       </div>
     </div>
   );

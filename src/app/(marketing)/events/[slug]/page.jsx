@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { CalendarDays, CreditCard, Loader2, MapPin, Ticket } from 'lucide-react';
-import { getEvent, registerForEvent } from '../../../../lib/events';
+import { captureEventPayment, getEvent, registerForEvent } from '../../../../lib/events';
+import PayPalPaymentOptions from '../../../../components/payments/PayPalPaymentOptions';
 
 const BASE_FIELDS = [
   { key: 'fullName', label: 'Full Name', type: 'TEXT', required: true },
@@ -16,7 +17,13 @@ const BASE_FIELDS = [
 ];
 
 function formatDate(value) {
-  return new Date(value).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  return new Date(value).toLocaleDateString('en-US', {
+    timeZone: 'UTC',
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
 }
 
 function Field({ field, value, onChange }) {
@@ -51,11 +58,13 @@ function Field({ field, value, onChange }) {
 
 export default function EventDetailPage() {
   const { slug } = useParams();
+  const formRef = useRef(null);
   const [event, setEvent] = useState(null);
   const [values, setValues] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [paymentComplete, setPaymentComplete] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -73,37 +82,69 @@ export default function EventDetailPage() {
     return (event?.registrationFields ?? []).filter((field) => !baseKeys.has(field.key));
   }, [event]);
 
-  const submit = async (e) => {
-    e.preventDefault();
+  const registrationPayload = useCallback(() => ({
+    fullName: values.fullName,
+    email: values.email,
+    phone: values.phone,
+    cnic: values.cnic,
+    city: values.city,
+    organization: values.organization,
+    designation: values.designation,
+    answers: customFields.reduce((acc, field) => ({ ...acc, [field.key]: values[field.key] }), {}),
+  }), [customFields, values]);
+
+  const submitRegistration = useCallback(async ({ redirectToHostedCheckout = false } = {}) => {
+    if (!formRef.current?.reportValidity()) {
+      throw new Error('Please complete the required registration fields.');
+    }
+
     setSubmitting(true);
     setMessage('');
+
     try {
-      const payload = {
-        fullName: values.fullName,
-        email: values.email,
-        phone: values.phone,
-        cnic: values.cnic,
-        city: values.city,
-        organization: values.organization,
-        designation: values.designation,
-        answers: customFields.reduce((acc, field) => ({ ...acc, [field.key]: values[field.key] }), {}),
-      };
-      const { data } = await registerForEvent(event.id, payload);
-      if (data.approveUrl) {
+      const { data } = await registerForEvent(event.id, registrationPayload());
+
+      if (redirectToHostedCheckout && data.approveUrl) {
         window.location.assign(data.approveUrl);
         return;
       }
+
+      if (data.orderId) {
+        return { orderId: data.orderId, requestId: data.requestId };
+      }
+
       if (event.ticketPrice > 0) {
         setMessage('Unable to start PayPal checkout. Please try again or contact support.');
         return;
       }
+
       setMessage('Registration received. APPNA NC will review your request and email your ticket after approval.');
     } catch (err) {
       setMessage(err?.response?.data?.message || 'Registration could not be submitted.');
+      throw err;
     } finally {
       setSubmitting(false);
     }
+  }, [event, registrationPayload]);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    try {
+      await submitRegistration({ redirectToHostedCheckout: true });
+    } catch {}
   };
+
+  const captureTicketOrder = useCallback(async (orderId, context) => {
+    await captureEventPayment({ orderId, requestId: context?.requestId });
+    setPaymentComplete(true);
+    setMessage('Payment received. APPNA NC will review your registration and email your ticket after approval.');
+  }, []);
+
+  const createTicketPaymentOrder = useCallback(() => submitRegistration(), [submitRegistration]);
+
+  const handlePaymentError = useCallback((err) => {
+    setMessage(err?.response?.data?.message || err?.message || 'Payment could not be completed.');
+  }, []);
 
   if (loading) {
     return <main className="flex min-h-screen items-center justify-center bg-gray-50"><Loader2 className="animate-spin text-[#7a1f3d]" /></main>;
@@ -133,7 +174,7 @@ export default function EventDetailPage() {
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-8 sm:px-8 lg:grid-cols-[.65fr_.35fr]">
-        <form onSubmit={submit} className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+        <form ref={formRef} onSubmit={submit} className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
           <h2 className="text-xl font-semibold text-gray-950">Registration</h2>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             {[...BASE_FIELDS, ...customFields].map((field) => (
@@ -144,16 +185,36 @@ export default function EventDetailPage() {
             ))}
           </div>
           {message && <div className="mt-5 rounded-lg border border-[#7a1f3d]/20 bg-[#7a1f3d]/5 p-3 text-sm text-[#7a1f3d]">{message}</div>}
-          <button disabled={submitting} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#7a1f3d] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">
-            {submitting ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
-            {event.ticketPrice > 0 ? `Pay $${event.ticketPrice} with PayPal` : 'Submit Registration'}
-          </button>
+          {event.ticketPrice > 0 ? (
+            <div className="mt-6">
+              <PayPalPaymentOptions
+                amount={event.ticketPrice}
+                description={`${event.title} event ticket`}
+                disabled={submitting || paymentComplete}
+                createOrder={createTicketPaymentOrder}
+                onApprove={captureTicketOrder}
+                onError={handlePaymentError}
+                fallbackLabel={`Pay $${event.ticketPrice} with hosted PayPal checkout`}
+                onFallbackCheckout={() => submitRegistration({ redirectToHostedCheckout: true }).catch(() => {})}
+              />
+            </div>
+          ) : (
+            <button disabled={submitting} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#7a1f3d] px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">
+              {submitting ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
+              Submit Registration
+            </button>
+          )}
         </form>
 
         <aside className="h-fit rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Ticket Price</p>
           <p className="mt-2 text-4xl font-semibold text-gray-950">${event.ticketPrice}</p>
           <p className="mt-3 text-sm leading-relaxed text-gray-500">After payment, your request goes to APPNA NC for verification. Approved tickets are emailed and available in the member dashboard.</p>
+          {event.ticketPrice > 0 && (
+            <p className="mt-3 text-xs leading-relaxed text-gray-500">
+              Eligible buyers can pay with PayPal, debit or credit card, and Apple Pay through PayPal checkout.
+            </p>
+          )}
         </aside>
       </section>
     </main>
