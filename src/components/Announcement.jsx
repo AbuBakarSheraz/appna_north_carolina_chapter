@@ -147,7 +147,7 @@ const handleClose = () => {
                 Buy Tickets Online
               </a>
               {/* <p className="text-center text-[11px] text-gray-400">
-                Secure payment via PayPal
+                Secure payment via Square
               </p> */}
             </div>
           </div>

@@ -3,29 +3,21 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CheckCircle2, AlertCircle, Loader2, ArrowRight } from 'lucide-react';
-import { capturePayPalOrder } from '../../../../../lib/profile';
+import { verifySquareMembershipPayment } from '../../../../../lib/profile';
 
-export default function PayPalReturnPage() {
+export default function SquareMembershipReturnPage() {
   const [status, setStatus] = useState('loading');
-  const [message, setMessage] = useState('Confirming your PayPal payment...');
+  const [message, setMessage] = useState('Confirming your Square payment...');
 
   useEffect(() => {
-    const orderId = new URLSearchParams(window.location.search).get('token');
-
-    if (!orderId) {
-      setStatus('error');
-      setMessage('PayPal did not return a payment token. Please try checkout again.');
-      return;
-    }
-
     (async () => {
       try {
-        await capturePayPalOrder(orderId);
+        await verifySquareMembershipPayment();
         setStatus('success');
         setMessage('Payment received. APPNA NC will review it and email your login confirmation within 24 hours.');
       } catch (err) {
         setStatus('error');
-        setMessage(err?.response?.data?.message || 'We could not confirm your PayPal payment. Please contact APPNA NC.');
+        setMessage(err?.response?.data?.message || 'We could not confirm your Square payment. Please contact APPNA NC.');
       }
     })();
   }, []);

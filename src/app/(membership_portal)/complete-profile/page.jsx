@@ -17,10 +17,10 @@ import {
   saveOfficeInfo,
   skipOfficeInfo,
   selectMembership,
-  createPayPalOrder,
-  capturePayPalOrder,
+  createSquareCheckout,
+  payMembershipWithSquareToken,
 } from '../../../lib/profile';
-import PayPalPaymentOptions from '../../../components/payments/PayPalPaymentOptions';
+import SquarePaymentOptions from '../../../components/payments/SquarePaymentOptions';
 
 const STEPS = [
   { id: 1, label: 'Basic Info',  icon: User        },
@@ -62,7 +62,7 @@ const PANEL_CONTENT = {
   5: {
     heading: 'Choose your\nmembership.',
     sub: 'Select the plan that fits your career stage. All plans include full chapter access.',
-    tips: ['Annual memberships expire on December 31', 'Secure checkout through PayPal'],
+    tips: ['Annual memberships expire on December 31', 'Secure checkout through Square'],
   },
 };
 
@@ -73,7 +73,7 @@ const MEMBERSHIP_PLANS = [
     perks: ['Community access', 'Educational events', 'Mentorship program'],
   },
   {
-    type: 'ANNUAL', label: 'Annual', price: 200, period: 'through Dec 31',
+    type: 'ANNUAL', label: 'Annual', price: 50, period: 'through Dec 31',
     desc: 'Full access for active physicians', accent: '#7a1f3d', popular: true,
     perks: ['All community features', 'CME events & workshops', 'Networking dinners', 'Voting rights'],
   },
@@ -262,16 +262,16 @@ function Step1Basic({ onNext, initialData }) {
       <SectionLabel icon={Phone} text="Contact" />
       <Grid2>
         <FloatingInput id="phone" label="Phone number" value={form.phoneNumber} onChange={set('phoneNumber')} required placeholder="+1 (800) 555-0199" />
-        <FloatingInput id="dob"   label="Date of birth" type="date" value={form.dateOfBirth} onChange={set('dateOfBirth')} />
+        {/* <FloatingInput id="dob"   label="Date of birth" type="date" value={form.dateOfBirth} onChange={set('dateOfBirth')} /> */}
       </Grid2>
-      <SectionLabel icon={Heart} text="Personal" />
-      <Grid2>
+      {/* <SectionLabel icon={Heart} text="Personal" /> */}
+      {/* <Grid2>
         <FloatingSelect id="marital" label="Marital status" value={form.maritalStatus} onChange={set('maritalStatus')}
           options={[{value:'SINGLE',label:'Single'},{value:'MARRIED',label:'Married'},{value:'DIVORCED',label:'Divorced'},{value:'WIDOWED',label:'Widowed'}]} />
         {form.maritalStatus === 'MARRIED' && (
           <FloatingInput id="spouse" label="Spouse name" value={form.spouse} onChange={set('spouse')} />
         )}
-      </Grid2>
+      </Grid2> */}
       <FloatingInput id="ref" label="Referred by (optional)" value={form.referredBy} onChange={set('referredBy')} />
       <PrimaryBtn onClick={submit} loading={loading}>Save & Continue <ArrowRight size={15} /></PrimaryBtn>
     </div>
@@ -497,9 +497,9 @@ function Step4Office({ onNext, onBack, initialData }) {
   );
 }
 
-const PAYPAL_AMOUNTS = {
+const SQUARE_AMOUNTS = {
   STUDENT: 0,
-  ANNUAL: 200,
+  ANNUAL: 50,
   LIFETIME: 500,
 };
 
@@ -515,7 +515,7 @@ function Step5Membership({ onBack, initialData }) {
   }, [initialData]);
 
   const selectedPlan = MEMBERSHIP_PLANS.find((plan) => plan.type === selected);
-  const selectedAmount = PAYPAL_AMOUNTS[selected];
+  const selectedAmount = SQUARE_AMOUNTS[selected];
 
   const startHostedCheckout = async () => {
     setError('');
@@ -531,19 +531,19 @@ function Step5Membership({ onBack, initialData }) {
         return;
       }
 
-      const { data } = await createPayPalOrder();
+      const { data } = await createSquareCheckout();
       window.location.href = data.approveUrl;
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-        'Failed to start PayPal checkout. Please try again.'
+        'Failed to start Square checkout. Please try again.'
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const createMembershipPaymentOrder = useCallback(async () => {
+  const completeSquareMembershipPayment = useCallback(async ({ sourceId, idempotencyKey }) => {
     setError('');
     setSuccess('');
     const res = await selectMembership({ type: selected });
@@ -554,14 +554,9 @@ function Step5Membership({ onBack, initialData }) {
       return null;
     }
 
-    const { data } = await createPayPalOrder();
-    return { orderId: data.orderId };
-  }, [router, selected]);
-
-  const captureMembershipPaymentOrder = useCallback(async (orderId) => {
-    await capturePayPalOrder(orderId);
+    await payMembershipWithSquareToken({ sourceId, idempotencyKey });
     setSuccess('Payment received. APPNA NC will review it and email your login confirmation within 24 hours.');
-  }, []);
+  }, [router, selected]);
 
   const handlePaymentError = useCallback((err) => {
     setError(err?.response?.data?.message || err?.message || 'Payment could not be completed.');
@@ -579,7 +574,7 @@ function Step5Membership({ onBack, initialData }) {
       <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800">
         <p className="font-semibold">Annual memberships expire on December 31.</p>
         <p className="text-xs mt-0.5 text-blue-700 leading-relaxed">
-          Paid plans can be completed with PayPal, debit or credit card, and Apple Pay on eligible devices.
+          Paid plans can be completed with debit or credit card, Apple Pay, and Cash App Pay through Square.
         </p>
       </div>
 
@@ -619,7 +614,7 @@ function Step5Membership({ onBack, initialData }) {
 
             <div className="text-right shrink-0">
               <div className="text-xl font-bold" style={{ color: plan.accent }}>
-                {PAYPAL_AMOUNTS[plan.type] === 0 ? 'Free' : `$${PAYPAL_AMOUNTS[plan.type]}`}
+                {SQUARE_AMOUNTS[plan.type] === 0 ? 'Free' : `$${SQUARE_AMOUNTS[plan.type]}`}
               </div>
               <div className="text-[10px] text-gray-400">{plan.period}</div>
             </div>
@@ -637,19 +632,18 @@ function Step5Membership({ onBack, initialData }) {
       ))}
 
       <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700 leading-relaxed">
-        After PayPal confirms a paid membership, APPNA NC will review it and email your login confirmation within 24 hours.
+        After Square confirms a paid membership, APPNA NC will review it and email your login confirmation within 24 hours.
       </div>
 
       {selectedAmount > 0 ? (
-        <PayPalPaymentOptions
+        <SquarePaymentOptions
           amount={selectedAmount}
           description={`${selectedPlan?.label} membership`}
           disabled={loading || !!success}
-          createOrder={createMembershipPaymentOrder}
-          onApprove={captureMembershipPaymentOrder}
+          onToken={completeSquareMembershipPayment}
           onError={handlePaymentError}
-          fallbackLabel={`Pay $${selectedAmount} with hosted PayPal checkout`}
-          onFallbackCheckout={startHostedCheckout}
+          // fallbackLabel={`Pay $${selectedAmount} with hosted Square checkout`}
+          // onFallbackCheckout={startHostedCheckout}
         />
       ) : null}
 

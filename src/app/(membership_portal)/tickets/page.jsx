@@ -69,6 +69,7 @@ async function downloadPass(ticket, type) {
     ['Time', `${ticket.event?.startTime || ''} - ${ticket.event?.endTime || ''}`],
     ['Location', ticket.event?.venue || 'Not available'],
     ['Ticket', ticket.ticketNumber],
+    ['Seat', ticket.ticketQuantity > 1 ? `${ticket.ticketIndex} of ${ticket.ticketQuantity}` : 'Single ticket'],
     ['Status', ticket.status],
     ['Purchased', formatDate(ticket.purchaseDate)],
   ];
@@ -171,6 +172,7 @@ export default function MyTicketsPage() {
                     <div><p className="text-xs font-bold uppercase tracking-wide text-gray-400">Time</p><p className="mt-1 font-semibold text-gray-950">{ticket.event?.startTime} - {ticket.event?.endTime}</p></div>
                     <div><p className="text-xs font-bold uppercase tracking-wide text-gray-400">Location</p><p className="mt-1 font-semibold text-gray-950">{ticket.event?.venue}</p></div>
                     <div><p className="text-xs font-bold uppercase tracking-wide text-gray-400">Ticket Number</p><p className="mt-1 font-semibold text-gray-950">{ticket.ticketNumber}</p></div>
+                    <div><p className="text-xs font-bold uppercase tracking-wide text-gray-400">Ticket</p><p className="mt-1 font-semibold text-gray-950">{ticket.ticketQuantity > 1 ? `${ticket.ticketIndex} of ${ticket.ticketQuantity}` : 'Single ticket'}</p></div>
                     <div><p className="text-xs font-bold uppercase tracking-wide text-gray-400">Name</p><p className="mt-1 font-semibold text-gray-950">{ticket.attendeeName}</p></div>
                     <div><p className="text-xs font-bold uppercase tracking-wide text-gray-400">Email</p><p className="mt-1 font-semibold text-gray-950">{ticket.attendeeEmail}</p></div>
                     <div><p className="text-xs font-bold uppercase tracking-wide text-gray-400">Purchase Date</p><p className="mt-1 font-semibold text-gray-950">{formatDate(ticket.purchaseDate)}</p></div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
-import { captureEventPayment } from '../../../../../lib/events';
+import { verifyEventPayment } from '../../../../../lib/events';
 
 export default function EventPaymentReturnPage() {
   const [status, setStatus] = useState('loading');
@@ -11,18 +11,17 @@ export default function EventPaymentReturnPage() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const orderId = params.get('token');
     const requestId = params.get('requestId');
 
-    if (!orderId || !requestId) {
+    if (!requestId) {
       setStatus('error');
-      setMessage('PayPal did not return the expected payment details.');
+      setMessage('Square did not return the expected registration details.');
       return;
     }
 
     (async () => {
       try {
-        await captureEventPayment({ orderId, requestId });
+        await verifyEventPayment({ requestId });
         setStatus('success');
         setMessage('Payment received. APPNA NC will review your registration and email your ticket after approval.');
       } catch (err) {

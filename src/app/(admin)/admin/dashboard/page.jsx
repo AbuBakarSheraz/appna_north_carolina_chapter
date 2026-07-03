@@ -108,7 +108,7 @@ function ConfirmModal({ user, action, onConfirm, onCancel, loading }) {
         </div>
         <p className="text-sm text-gray-600 mb-5">
           {isConfirm
-            ? <>Activate <strong>{fullName(user)}</strong>'s membership after verifying their PayPal payment?</>
+            ? <>Activate <strong>{fullName(user)}</strong>'s membership after verifying their Square payment?</>
             : <>Revoke the active membership for <strong>{fullName(user)}</strong>? They will lose access immediately.</>}
         </p>
         <div className="flex gap-3">
@@ -491,7 +491,7 @@ export default function AdminDashboardPage() {
                 {tab === 'pending' ? 'Pending Payments' : 'All Members'}
               </h1>
               <p className="text-xs text-gray-400 hidden sm:block">
-                {tab === 'pending' ? 'Review and confirm PayPal payments' : 'Browse all registered accounts'}
+                {tab === 'pending' ? 'Review and confirm Square payments' : 'Browse all registered accounts'}
               </p>
             </div>
 

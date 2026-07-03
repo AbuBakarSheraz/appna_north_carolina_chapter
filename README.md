@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# APPNA NC Frontend
 
-## Getting Started
+Next.js frontend for APPNA North Carolina marketing pages, member portal, admin panel, Square checkout, event ticket purchases, and QR ticket views.
 
-First, run the development server:
+## Setup
+
+```bash
+npm install
+npm run build
+npm run start
+```
+
+For local development:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Copy `.env.example` to `.env.local` for local development, or configure the same variables in your production host.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Required variables:
 
-## Learn More
+```env
+NEXT_PUBLIC_API_BASE_URL=https://api.appnanc.org/api
+NEXT_PUBLIC_SITE_URL=https://appnanc.org
 
-To learn more about Next.js, take a look at the following resources:
+NEXT_PUBLIC_SQUARE_APPLICATION_ID=your-square-application-id
+NEXT_PUBLIC_SQUARE_LOCATION_ID=your-square-location-id
+NEXT_PUBLIC_SQUARE_ENVIRONMENT=production
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Use `NEXT_PUBLIC_SQUARE_ENVIRONMENT=sandbox` with sandbox app/location IDs while testing.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Square Payments
 
-## Deploy on Vercel
+The frontend uses Square Web Payments SDK for card, Apple Pay, and Cash App Pay. Hosted Square checkout remains available as a fallback.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Apple Pay requires Square domain verification for the production domain before it appears on eligible Safari devices.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+PayPal is not used by the current frontend payment flow.

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { ArrowLeft, CreditCard } from 'lucide-react';
 
-export default function PayPalCancelPage() {
+export default function SquareCancelPage() {
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <section className="w-full max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">

@@ -233,14 +233,23 @@ export default function AdminEventsPage() {
                   }
                   if (!requestSearch) return true;
                   const q = requestSearch.toLowerCase();
-                  return [request.fullName, request.email, request.ticket?.ticketNumber].filter(Boolean).some((value) => String(value).toLowerCase().includes(q));
+                  return [
+                    request.fullName,
+                    request.email,
+                    ...(request.tickets ?? []).map((ticket) => ticket.ticketNumber),
+                  ].filter(Boolean).some((value) => String(value).toLowerCase().includes(q));
                 }).map((request) => (
                   <div key={request.id} className="rounded-lg border border-gray-100 p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <p className="font-semibold text-gray-950">{request.fullName}</p>
                         <p className="text-sm text-gray-500">{request.event.title}</p>
-                        <p className="text-xs text-gray-400">{request.email} | ${request.paymentAmount} | {request.paymentStatus} | {request.approvalStatus}</p>
+                        <p className="text-xs text-gray-400">{request.email} | {request.ticketQuantity ?? 1} {(request.ticketQuantity ?? 1) === 1 ? 'ticket' : 'tickets'} | ${request.paymentAmount} | {request.paymentStatus} | {request.approvalStatus}</p>
+                        {(request.tickets?.length ?? 0) > 0 && (
+                          <p className="mt-1 text-xs text-gray-400">
+                            Tickets: {request.tickets.map((ticket) => ticket.ticketNumber).join(', ')}
+                          </p>
+                        )}
                         <p className="mt-1 text-xs text-gray-400">Membership: {request.user?.membership?.isActive ? `Active ${request.user.membership.type}` : request.user?.membership ? `Inactive ${request.user.membership.paymentStatus}` : 'No membership record'} | Registered {new Date(request.createdAt).toLocaleDateString()}</p>
                       </div>
                       {['AWAITING_ADMIN_CONFIRMATION', 'PAYMENT_COMPLETED'].includes(request.approvalStatus) && (

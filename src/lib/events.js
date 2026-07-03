@@ -3,7 +3,9 @@ import { api } from './api';
 export const listEvents = () => api.get('/events');
 export const getEvent = (slug) => api.get(`/events/${slug}`);
 export const registerForEvent = (eventId, data) => api.post(`/events/${eventId}/registrations`, data);
-export const captureEventPayment = (data) => api.post('/events/paypal/capture', data);
+export const verifyEventPayment = (data) => api.post('/events/square/verify', data);
+export const captureEventPayment = verifyEventPayment;
+export const payEventWithSquareToken = (data) => api.post('/events/square/pay', data);
 
 export const getMyTickets = () => api.get('/tickets/me');
 

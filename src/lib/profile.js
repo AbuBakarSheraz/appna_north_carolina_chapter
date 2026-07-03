@@ -44,8 +44,11 @@ export const skipOfficeInfo = () =>
 export const selectMembership = (data) =>
   api.post('/profile/membership', data);
 
-export const createPayPalOrder = () =>
-  api.post('/profile/membership/paypal/create-order');
+export const createSquareCheckout = () =>
+  api.post('/profile/membership/square/create-checkout');
 
-export const capturePayPalOrder = (orderId) =>
-  api.post('/profile/membership/paypal/capture', { orderId });
+export const verifySquareMembershipPayment = () =>
+  api.post('/profile/membership/square/verify');
+
+export const payMembershipWithSquareToken = (data) =>
+  api.post('/profile/membership/square/pay', data);

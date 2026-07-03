@@ -1,19 +1,8 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Header from "../../components/shared/Header";
 import Footer from "../../components/shared/Footer";
 import Announcement from "../../components/Announcement";
 import '../../lib/interceptors';
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata = {
   title: "APPNA North Carolina | Healthcare & Community",

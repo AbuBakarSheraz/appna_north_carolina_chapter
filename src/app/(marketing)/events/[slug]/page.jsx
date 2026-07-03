@@ -2,18 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { CalendarDays, CreditCard, Loader2, MapPin, Ticket } from 'lucide-react';
-import { captureEventPayment, getEvent, registerForEvent } from '../../../../lib/events';
-import PayPalPaymentOptions from '../../../../components/payments/PayPalPaymentOptions';
+import { CalendarDays, CreditCard, Loader2, MapPin, Minus, Plus, Ticket } from 'lucide-react';
+import { getEvent, payEventWithSquareToken, registerForEvent } from '../../../../lib/events';
+import SquarePaymentOptions from '../../../../components/payments/SquarePaymentOptions';
 
 const BASE_FIELDS = [
   { key: 'fullName', label: 'Full Name', type: 'TEXT', required: true },
   { key: 'email', label: 'Email Address', type: 'EMAIL', required: true },
   { key: 'phone', label: 'Phone Number', type: 'PHONE', required: true },
-  { key: 'cnic', label: 'CNIC / ID Number', type: 'TEXT' },
-  { key: 'city', label: 'City', type: 'TEXT' },
-  { key: 'organization', label: 'Organization', type: 'TEXT' },
-  { key: 'designation', label: 'Designation', type: 'TEXT' },
+  { key: 'cnic', label: 'Speciality', type: 'TEXT' },
+  { key: 'city', label: 'Address', type: 'TEXT' },
+  { key: 'organization', label: 'Medical School', type: 'TEXT' },
+  { key: 'designation', label: 'Office Address', type: 'TEXT' },
 ];
 
 function formatDate(value) {
@@ -52,6 +52,18 @@ function Field({ field, value, onChange }) {
       </label>
     );
   }
+   if (field.type === 'PHONE') {
+    return (
+      <input
+        className={common}
+        type="tel"
+        placeholder="+1 202 555 0123"
+        value={value ?? ''}
+        onChange={(e) => onChange(e.target.value)}
+        required={field.required}
+      />
+    );
+  }
 
   return <input className={common} type={type} value={value ?? ''} onChange={(e) => onChange(e.target.value)} required={field.required} />;
 }
@@ -65,6 +77,8 @@ export default function EventDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [paymentComplete, setPaymentComplete] = useState(false);
+  const [ticketQuantity, setTicketQuantity] = useState(1);
+  const [checkoutContext, setCheckoutContext] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -91,7 +105,13 @@ export default function EventDetailPage() {
     organization: values.organization,
     designation: values.designation,
     answers: customFields.reduce((acc, field) => ({ ...acc, [field.key]: values[field.key] }), {}),
-  }), [customFields, values]);
+    ticketQuantity,
+  }), [customFields, ticketQuantity, values]);
+
+  const ticketTotal = useMemo(
+    () => Number(event?.ticketPrice || 0) * ticketQuantity,
+    [event?.ticketPrice, ticketQuantity],
+  );
 
   const submitRegistration = useCallback(async ({ redirectToHostedCheckout = false } = {}) => {
     if (!formRef.current?.reportValidity()) {
@@ -102,6 +122,14 @@ export default function EventDetailPage() {
     setMessage('');
 
     try {
+      if (checkoutContext && !redirectToHostedCheckout) {
+        return checkoutContext;
+      }
+      if (checkoutContext?.approveUrl && redirectToHostedCheckout) {
+        window.location.assign(checkoutContext.approveUrl);
+        return;
+      }
+
       const { data } = await registerForEvent(event.id, registrationPayload());
 
       if (redirectToHostedCheckout && data.approveUrl) {
@@ -110,11 +138,13 @@ export default function EventDetailPage() {
       }
 
       if (data.orderId) {
-        return { orderId: data.orderId, requestId: data.requestId };
+        const context = { orderId: data.orderId, requestId: data.requestId, approveUrl: data.approveUrl };
+        setCheckoutContext(context);
+        return context;
       }
 
       if (event.ticketPrice > 0) {
-        setMessage('Unable to start PayPal checkout. Please try again or contact support.');
+        setMessage('Unable to start Square checkout. Please try again or contact support.');
         return;
       }
 
@@ -125,7 +155,7 @@ export default function EventDetailPage() {
     } finally {
       setSubmitting(false);
     }
-  }, [event, registrationPayload]);
+  }, [checkoutContext, event, registrationPayload]);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -134,13 +164,16 @@ export default function EventDetailPage() {
     } catch {}
   };
 
-  const captureTicketOrder = useCallback(async (orderId, context) => {
-    await captureEventPayment({ orderId, requestId: context?.requestId });
+  const completeSquareTicketPayment = useCallback(async ({ sourceId, idempotencyKey }) => {
+    const context = await submitRegistration();
+    await payEventWithSquareToken({
+      requestId: context?.requestId,
+      sourceId,
+      idempotencyKey,
+    });
     setPaymentComplete(true);
     setMessage('Payment received. APPNA NC will review your registration and email your ticket after approval.');
-  }, []);
-
-  const createTicketPaymentOrder = useCallback(() => submitRegistration(), [submitRegistration]);
+  }, [submitRegistration]);
 
   const handlePaymentError = useCallback((err) => {
     setMessage(err?.response?.data?.message || err?.message || 'Payment could not be completed.');
@@ -180,22 +213,63 @@ export default function EventDetailPage() {
             {[...BASE_FIELDS, ...customFields].map((field) => (
               <label key={field.key} className={field.type === 'TEXTAREA' ? 'sm:col-span-2' : ''}>
                 <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">{field.label}{field.required ? ' *' : ''}</span>
-                <Field field={field} value={values[field.key]} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />
+                <Field
+                  field={field}
+                  value={values[field.key]}
+                  onChange={(value) => {
+                    setCheckoutContext(null);
+                    setValues((current) => ({ ...current, [field.key]: value }));
+                  }}
+                />
               </label>
             ))}
+            <div className="sm:col-span-2">
+              <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Tickets</span>
+              <div className="flex w-full max-w-xs items-center justify-between rounded-lg border border-gray-200 bg-white p-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCheckoutContext(null);
+                    setTicketQuantity((current) => Math.max(1, current - 1));
+                  }}
+                  disabled={ticketQuantity <= 1 || submitting || paymentComplete}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 text-gray-700 disabled:opacity-40"
+                  aria-label="Decrease ticket quantity"
+                >
+                  <Minus size={16} />
+                </button>
+                <div className="text-center">
+                  <p className="text-2xl font-semibold text-gray-950">{ticketQuantity}</p>
+                  <p className="text-xs text-gray-500">{ticketQuantity === 1 ? 'ticket' : 'tickets'}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCheckoutContext(null);
+                    setTicketQuantity((current) => Math.min(event.capacity || 99, current + 1));
+                  }}
+                  disabled={submitting || paymentComplete || ticketQuantity >= (event.capacity || 99)}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-gray-200 text-gray-700 disabled:opacity-40"
+                  aria-label="Increase ticket quantity"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
+              <p className="mt-2 text-xs text-gray-500">${event.ticketPrice} each · ${ticketTotal} total</p>
+            </div>
           </div>
           {message && <div className="mt-5 rounded-lg border border-[#7a1f3d]/20 bg-[#7a1f3d]/5 p-3 text-sm text-[#7a1f3d]">{message}</div>}
           {event.ticketPrice > 0 ? (
             <div className="mt-6">
-              <PayPalPaymentOptions
-                amount={event.ticketPrice}
-                description={`${event.title} event ticket`}
+              <SquarePaymentOptions
+                amount={ticketTotal}
+                description={`${event.title} · ${ticketQuantity} ${ticketQuantity === 1 ? 'ticket' : 'tickets'}`}
                 disabled={submitting || paymentComplete}
-                createOrder={createTicketPaymentOrder}
-                onApprove={captureTicketOrder}
+                buyer={values}
+                onToken={completeSquareTicketPayment}
                 onError={handlePaymentError}
-                fallbackLabel={`Pay $${event.ticketPrice} with hosted PayPal checkout`}
-                onFallbackCheckout={() => submitRegistration({ redirectToHostedCheckout: true }).catch(() => {})}
+                // fallbackLabel={`Pay $${ticketTotal} with hosted Square checkout`}
+                // onFallbackCheckout={() => submitRegistration({ redirectToHostedCheckout: true }).catch(() => {})}
               />
             </div>
           ) : (
@@ -209,10 +283,11 @@ export default function EventDetailPage() {
         <aside className="h-fit rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-widest text-gray-400">Ticket Price</p>
           <p className="mt-2 text-4xl font-semibold text-gray-950">${event.ticketPrice}</p>
+          <p className="mt-2 text-sm font-semibold text-gray-700">{ticketQuantity} {ticketQuantity === 1 ? 'ticket' : 'tickets'} · ${ticketTotal} total</p>
           <p className="mt-3 text-sm leading-relaxed text-gray-500">After payment, your request goes to APPNA NC for verification. Approved tickets are emailed and available in the member dashboard.</p>
           {event.ticketPrice > 0 && (
             <p className="mt-3 text-xs leading-relaxed text-gray-500">
-              Eligible buyers can pay with PayPal, debit or credit card, and Apple Pay through PayPal checkout.
+              Eligible buyers can pay with debit or credit card, Apple Pay, or Cash App Pay through Square.
             </p>
           )}
         </aside>
