@@ -47,6 +47,22 @@ function tokenError(tokenResult) {
   return detail || `Square tokenization failed with status: ${tokenResult?.status || 'UNKNOWN'}.`;
 }
 
+// Normalizes any incoming phone value to E.164 US format (+1XXXXXXXXXX).
+// - Strips everything but digits
+// - Drops a leading "1" before re-adding it, so "1234567890" and
+//   "11234567890" both become "+11234567890" instead of double-prefixing
+// - Returns undefined for empty/invalid input so Square doesn't receive
+//   a malformed phone field
+function toUSPhone(rawPhone) {
+  if (!rawPhone) return undefined;
+  const digits = String(rawPhone).replace(/\D/g, '');
+  if (!digits) return undefined;
+  const withoutCountryCode = digits.length === 11 && digits.startsWith('1')
+    ? digits.slice(1)
+    : digits;
+  return `+1${withoutCountryCode}`;
+}
+
 export default function SquarePaymentOptions({
   amount,
   description = 'APPNA North Carolina payment',
@@ -66,6 +82,13 @@ export default function SquarePaymentOptions({
   // read the latest instance without needing to be in dependency arrays.
   const cardRef = useRef(null);
   const applePayRef = useRef(null);
+
+  // Holds the live Square paymentRequest instance shared by Apple Pay and
+  // Cash App Pay. Amount changes call .update() on this instead of tearing
+  // down and re-attaching both payment methods — this is what fixes the
+  // "works for 1 ticket, breaks for 2+" bug, since ticket-quantity changes
+  // no longer trigger a full re-init/re-attach race on the same DOM nodes.
+  const paymentRequestObjRef = useRef(null);
 
   // Latest callback props, kept in refs so the Square-setup effect (and
   // processToken) never need onToken/onError in their dependency arrays.
@@ -90,14 +113,14 @@ export default function SquarePaymentOptions({
   const sdkUrl = squareSdkUrl(environment);
   const displayAmount = Number(amount || 0).toFixed(2);
 
-  const paymentRequest = useCallback((payments) => payments.paymentRequest({
+  const buildPaymentRequestOptions = useCallback((amt) => ({
     countryCode: 'US',
     currencyCode: 'USD',
     total: {
-      amount: displayAmount,
+      amount: amt,
       label: 'APPNA North Carolina',
     },
-  }), [displayAmount]);
+  }), []);
 
   const verificationDetails = useMemo(() => ({
     amount: displayAmount,
@@ -109,7 +132,7 @@ export default function SquarePaymentOptions({
       givenName: buyer.firstName || buyer.fullName?.split(' ')?.[0] || undefined,
       familyName: buyer.lastName || buyer.fullName?.split(' ')?.slice(1).join(' ') || undefined,
       email: buyer.email || undefined,
-      phone: buyer.phone || undefined,
+      phone: toUSPhone(buyer.phone),
       countryCode: 'US',
     },
   }), [buyer.email, buyer.firstName, buyer.fullName, buyer.lastName, buyer.phone, displayAmount]);
@@ -147,6 +170,10 @@ export default function SquarePaymentOptions({
     throw new Error(tokenError(tokenResult));
   }, [verificationDetails]);
 
+  // Setup effect — runs once per mount (or only if config actually changes:
+  // app/location IDs, container IDs, SDK URL). Deliberately does NOT depend
+  // on displayAmount/paymentRequest anymore, so ticket-quantity changes no
+  // longer tear down and re-attach Card/Apple Pay/Cash App Pay.
   useEffect(() => {
     let cancelled = false;
 
@@ -170,17 +197,29 @@ export default function SquarePaymentOptions({
         });
         methodsRef.current = [];
 
+        // Clear the card container before attaching — belt-and-suspenders
+        // against any leftover iframe from a previous run.
+        const cardContainer = document.getElementById(cardId);
+        if (cardContainer) cardContainer.innerHTML = '';
+
         const payments = window.Square.payments(applicationId, locationId);
         const nextEligible = { card: false, applePay: false, cashAppPay: false };
 
         const nextCard = await payments.card();
+        if (cancelled) { nextCard.destroy?.(); return; }
         await nextCard.attach(`#${cardId}`);
         methodsRef.current.push(nextCard);
         nextEligible.card = true;
         if (!cancelled) cardRef.current = nextCard;
 
+        // One shared paymentRequest instance — later amount changes call
+        // .update() on this ref instead of recreating Apple Pay/Cash App Pay.
+        const reqObj = payments.paymentRequest(buildPaymentRequestOptions(displayAmount));
+        paymentRequestObjRef.current = reqObj;
+
         try {
-          const nextApplePay = await payments.applePay(paymentRequest(payments));
+          const nextApplePay = await payments.applePay(reqObj);
+          if (cancelled) { nextApplePay.destroy?.(); return; }
           methodsRef.current.push(nextApplePay);
           nextEligible.applePay = true;
           if (!cancelled) applePayRef.current = nextApplePay;
@@ -189,10 +228,11 @@ export default function SquarePaymentOptions({
         }
 
         try {
-          const cashAppPay = await payments.cashAppPay(paymentRequest(payments), {
+          const cashAppPay = await payments.cashAppPay(reqObj, {
             redirectURL: window.location.href,
             referenceId: `appna-${Date.now()}`,
           });
+          if (cancelled) { cashAppPay.destroy?.(); return; }
           await cashAppPay.attach(`#${cashAppId}`);
           cashAppPay.addEventListener('ontokenization', (event) => {
             const { tokenResult, error } = event.detail || {};
@@ -228,6 +268,7 @@ export default function SquarePaymentOptions({
 
     return () => {
       cancelled = true;
+      paymentRequestObjRef.current = null;
       methodsRef.current.forEach((method) => {
         try {
           method?.destroy?.();
@@ -235,30 +276,47 @@ export default function SquarePaymentOptions({
       });
       methodsRef.current = [];
     };
-    // Intentionally does NOT depend on onToken/onError/processToken —
-    // those are read via refs above so this effect only reruns when the
-    // Square config or amount actually changes, not on every keystroke.
-  }, [applicationId, cardId, cashAppId, locationId, paymentRequest, processToken, sdkUrl]);
+    // Intentionally does NOT depend on onToken/onError/processToken/displayAmount —
+    // callbacks are read via refs above, and amount changes are handled by the
+    // separate .update() effect below, so this only reruns when the Square
+    // config or container IDs actually change.
+  }, [applicationId, cardId, cashAppId, locationId, sdkUrl, buildPaymentRequestOptions]);
+
+  // Keep Apple Pay / Cash App Pay's total in sync on amount changes (e.g.
+  // ticket quantity) without re-attaching either payment method.
+  useEffect(() => {
+    if (paymentRequestObjRef.current) {
+      paymentRequestObjRef.current.update({
+        total: { amount: displayAmount, label: 'APPNA North Carolina' },
+      });
+    }
+  }, [displayAmount]);
 
   const handleCardPayment = async () => {
     if (!cardRef.current) return;
+    setProcessing(true);
+    setMessage('');
     try {
       const tokenResult = await tokenize(cardRef.current, 'card');
       await processToken(tokenResult.token, 'card', tokenResult);
     } catch (err) {
       setMessage(err?.message || 'Card payment could not be started.');
       onErrorRef.current?.(err);
+      setProcessing(false);
     }
   };
 
   const handleApplePayPayment = async () => {
     if (!applePayRef.current) return;
+    setProcessing(true);
+    setMessage('');
     try {
       const tokenResult = await tokenize(applePayRef.current, 'applePay');
       await processToken(tokenResult.token, 'applePay', tokenResult);
     } catch (err) {
       setMessage(err?.message || 'Apple Pay could not be started.');
       onErrorRef.current?.(err);
+      setProcessing(false);
     }
   };
 

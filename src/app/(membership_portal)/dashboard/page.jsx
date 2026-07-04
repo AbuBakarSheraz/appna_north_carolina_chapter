@@ -399,8 +399,13 @@ function ActiveMembershipCard({ profile }) {
 // ─────────────────────────────────────────────────────────────────
 // PROFILE COMPLETION BANNER
 // ─────────────────────────────────────────────────────────────────
-function ProfileCompletionBanner({ profileStep }) {
+function ProfileCompletionBanner({ profileStep, profile  }) {
   const percent = Math.round(((profileStep ?? 0) / PROFILE_STEPS.length) * 100);
+  const isActive  = profile?.membership?.isActive;
+  const isComplete = profile?.isProfileCompleted;
+  const isPaidPending = profile?.membership?.paymentStatus === 'PAID';
+  const disableContinue =
+  (profileStep ?? 0) !== 0 && !isActive && isPaidPending;
   return (
     <div className="rounded-2xl overflow-hidden shadow-sm border border-[#7a1f3d]/10 bg-white">
       <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg, #7a1f3d, #9b2d51)' }} />
@@ -418,11 +423,27 @@ function ProfileCompletionBanner({ profileStep }) {
                 : `You're ${percent}% there — keep going to unlock full access.`}
             </p>
           </div>
-          <Link href="/complete-profile"
-            className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white flex-shrink-0 transition-all hover:-translate-y-0.5"
-            style={{ background: 'linear-gradient(135deg, #7a1f3d, #9b2d51)', boxShadow: '0 4px 16px rgba(122,31,61,0.3)' }}>
-            {(profileStep ?? 0) === 0 ? 'Start now' : 'Continue'} <ArrowRight size={15} />
-          </Link>
+         <Link
+  href={disableContinue ? "#" : "/complete-profile"}
+  onClick={(e) => {
+    if (disableContinue) {
+      e.preventDefault();
+    }
+  }}
+  className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold flex-shrink-0 transition-all
+    ${
+      disableContinue
+        ? "cursor-not-allowed opacity-50 pointer-events-none"
+        : "text-white hover:-translate-y-0.5"
+    }`}
+  style={{
+    background: "linear-gradient(135deg, #7a1f3d, #9b2d51)",
+    boxShadow: "0 4px 16px rgba(122,31,61,0.3)",
+  }}
+>
+  {(profileStep ?? 0) === 0 ? "Start now" : "Continue"}
+  <ArrowRight size={15} />
+</Link>
         </div>
         <div className="mt-6">
           <div className="flex justify-between text-xs text-gray-400 mb-2">
@@ -684,7 +705,7 @@ export default function DashboardPage() {
           {/* Profile incomplete: show progress banner + locked card teaser */}
           {!profile?.isProfileCompleted && (
             <>
-              <ProfileCompletionBanner profileStep={profile?.profileStep ?? 0} />
+              <ProfileCompletionBanner profileStep={profile?.profileStep ?? 0} profile={profile} />
               <MembershipCardSection profile={profile} />
             </>
           )}

@@ -6,6 +6,7 @@ import { CalendarDays, CreditCard, Loader2, MapPin, Minus, Plus, Ticket } from '
 import { getEvent, payEventWithSquareToken, registerForEvent } from '../../../../lib/events';
 import SquarePaymentOptions from '../../../../components/payments/SquarePaymentOptions';
 
+const US_PREFIX = '+1 ';
 const BASE_FIELDS = [
   { key: 'fullName', label: 'Full Name', type: 'TEXT', required: true },
   { key: 'email', label: 'Email Address', type: 'EMAIL', required: true },
@@ -15,6 +16,30 @@ const BASE_FIELDS = [
   { key: 'organization', label: 'Medical School', type: 'TEXT' },
   { key: 'designation', label: 'Office Address', type: 'TEXT' },
 ];
+
+function extractUSDigits(raw)
+{
+  const afterPrefix = raw.startsWith(US_PREFIX) ? raw.slice(US_PREFIX.length) : raw;
+  let digits = afterPrefix.replace(/\D/g, '');
+    if (digits.length === 11 && digits.startsWith('1')) digits = digits.slice(1);
+  return digits.slice(0, 10);
+}
+
+function formatUSPhoneDisplay(digits) {
+  let out = US_PREFIX;
+  if (digits.length > 0) out += `(${digits.slice(0, 3)}`;
+  if (digits.length >= 3) out += ')';
+  if (digits.length > 3) out += ` ${digits.slice(3, 6)}`;
+  if (digits.length > 6) out += `-${digits.slice(6, 10)}`;
+  return out;
+}
+
+// True only when exactly 10 digits have been entered — use this for
+// validation before allowing submit/payment.
+function isCompleteUSPhone(value) {
+  return extractUSDigits(value || '').length === 10;
+}
+
 
 function formatDate(value) {
   return new Date(value).toLocaleDateString('en-US', {
@@ -52,24 +77,69 @@ function Field({ field, value, onChange }) {
       </label>
     );
   }
-   if (field.type === 'PHONE') {
-    return (
-      <input
-        className={common}
-        type="tel"
-        placeholder="+1 202 555 0123"
-        value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
-        required={field.required}
-      />
-    );
-  }
+if (field.type === 'PHONE') {
+  const digits = extractUSDigits(value || '');
+  return (
+    <input
+      className={common}
+      type="tel"
+      inputMode="numeric"
+      placeholder="+1 (202) 555-0123"
+      value={formatUSPhoneDisplay(digits)}
+      onChange={(e) => onChange(formatUSPhoneDisplay(extractUSDigits(e.target.value)))}
+      onKeyDown={(e) => {
+        // Block backspace/delete from eating into the "+1 " prefix
+        const el = e.target;
+        if ((e.key === 'Backspace' || e.key === 'Delete') && el.selectionStart <= US_PREFIX.length && el.selectionEnd <= US_PREFIX.length) {
+          e.preventDefault();
+        }
+      }}
+      required={field.required}
+    />
+  );
+}
 
   return <input className={common} type={type} value={value ?? ''} onChange={(e) => onChange(e.target.value)} required={field.required} />;
+}
+function PaymentSuccessModal({ open, onClose, message }) {
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+          <svg viewBox="0 0 52 52" className="h-12 w-12">
+            <circle
+              cx="26" cy="26" r="24" fill="none" stroke="#16a34a" strokeWidth="3"
+              style={{ strokeDasharray: 151, strokeDashoffset: 151, animation: 'appna-circle-draw 0.5s ease-out forwards' }}
+            />
+            <path
+              d="M14 27l7 7 17-17" fill="none" stroke="#16a34a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+              style={{ strokeDasharray: 36, strokeDashoffset: 36, animation: 'appna-check-draw 0.3s 0.5s ease-out forwards' }}
+            />
+          </svg>
+        </div>
+        <h3 className="mt-5 text-lg font-semibold text-green-700">Payment Successful</h3>
+        <p className="mt-2 text-sm leading-relaxed text-green-700">{message}</p>
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700"
+        >
+          Got it
+        </button>
+      </div>
+      <style jsx global>{`
+        @keyframes appna-circle-draw { to { stroke-dashoffset: 0; } }
+        @keyframes appna-check-draw { to { stroke-dashoffset: 0; } }
+      `}</style>
+    </div>
+  );
 }
 
 export default function EventDetailPage() {
   const { slug } = useParams();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const formRef = useRef(null);
   const [event, setEvent] = useState(null);
   const [values, setValues] = useState({});
@@ -172,7 +242,8 @@ export default function EventDetailPage() {
       idempotencyKey,
     });
     setPaymentComplete(true);
-    setMessage('Payment received. APPNA NC will review your registration and email your ticket after approval.');
+    setShowSuccessModal(true);
+    // setMessage('Payment received. APPNA NC will review your registration and email your ticket after approval.');
   }, [submitRegistration]);
 
   const handlePaymentError = useCallback((err) => {
@@ -258,8 +329,9 @@ export default function EventDetailPage() {
               <p className="mt-2 text-xs text-gray-500">${event.ticketPrice} each · ${ticketTotal} total</p>
             </div>
           </div>
-          {message && <div className="mt-5 rounded-lg border border-[#7a1f3d]/20 bg-[#7a1f3d]/5 p-3 text-sm text-[#7a1f3d]">{message}</div>}
-          {event.ticketPrice > 0 ? (
+          {message && !paymentComplete && (
+            <div className="mt-5 rounded-lg border border-[#7a1f3d]/20 bg-[#7a1f3d]/5 p-3 text-sm text-[#7a1f3d]">{message}</div>
+          )}          {event.ticketPrice > 0 ? (
             <div className="mt-6">
               <SquarePaymentOptions
                 amount={ticketTotal}
@@ -292,6 +364,11 @@ export default function EventDetailPage() {
           )}
         </aside>
       </section>
+       <PaymentSuccessModal
+        open={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message="Payment received. APPNA NC will review your registration and email your ticket after approval."
+      />
     </main>
   );
 }

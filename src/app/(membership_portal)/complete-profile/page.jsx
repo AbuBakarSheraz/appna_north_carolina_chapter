@@ -502,6 +502,46 @@ const SQUARE_AMOUNTS = {
   ANNUAL: 50,
   LIFETIME: 500,
 };
+function PaymentSuccessModal({ open, onClose, message }) {
+    const router = useRouter();
+  if (!open) return null;
+   const handleGotIt = () => {
+    onClose(); // Close the modal
+    router.push("/dashboard"); // Navigate to dashboard
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 text-center shadow-xl">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+          <svg viewBox="0 0 52 52" className="h-12 w-12">
+            <circle
+              cx="26" cy="26" r="24" fill="none" stroke="#16a34a" strokeWidth="3"
+              style={{ strokeDasharray: 151, strokeDashoffset: 151, animation: 'appna-circle-draw 0.5s ease-out forwards' }}
+            />
+            <path
+              d="M14 27l7 7 17-17" fill="none" stroke="#16a34a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"
+              style={{ strokeDasharray: 36, strokeDashoffset: 36, animation: 'appna-check-draw 0.3s 0.5s ease-out forwards' }}
+            />
+          </svg>
+        </div>
+        <h3 className="mt-5 text-lg font-semibold text-green-700">Payment Successful</h3>
+        <p className="mt-2 text-sm leading-relaxed text-green-700">{message}</p>
+        <button
+          type="button"
+          onClick={handleGotIt}
+          className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700"
+        >
+          Got it
+        </button>
+      </div>
+      <style jsx global>{`
+        @keyframes appna-circle-draw { to { stroke-dashoffset: 0; } }
+        @keyframes appna-check-draw { to { stroke-dashoffset: 0; } }
+      `}</style>
+    </div>
+  );
+}
 
 function Step5Membership({ onBack, initialData }) {
   const router = useRouter();
@@ -509,6 +549,7 @@ function Step5Membership({ onBack, initialData }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // add this
 
   useEffect(() => {
     if (initialData?.type) setSelected(initialData.type);
@@ -556,6 +597,7 @@ function Step5Membership({ onBack, initialData }) {
 
     await payMembershipWithSquareToken({ sourceId, idempotencyKey });
     setSuccess('Payment received. APPNA NC will review it and email your login confirmation within 24 hours.');
+    setShowSuccessModal(true);
   }, [router, selected]);
 
   const handlePaymentError = useCallback((err) => {
@@ -655,6 +697,11 @@ function Step5Membership({ onBack, initialData }) {
           </PrimaryBtn>
         ) : null}
       </div>
+       <PaymentSuccessModal
+        open={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message="Payment received. APPNA NC will review it and email your login confirmation within 24 hours."
+      />
     </div>
   );
 }
