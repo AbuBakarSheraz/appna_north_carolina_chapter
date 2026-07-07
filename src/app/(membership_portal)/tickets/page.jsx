@@ -27,7 +27,6 @@ async function loadImage(src) {
     img.src = src;
   });
 }
-
 async function downloadPass(ticket, type) {
   const W = 1400;
   const H = 820;
@@ -40,6 +39,8 @@ async function downloadPass(ticket, type) {
 
   ctx.fillStyle = '#f8fafc';
   ctx.fillRect(0, 0, W, H);
+
+  ctx.beginPath();                                    // ← added
   ctx.fillStyle = '#ffffff';
   ctx.roundRect(44, 44, W - 88, H - 88, 24);
   ctx.fill();
@@ -84,6 +85,7 @@ async function downloadPass(ticket, type) {
     ctx.fillText(String(value || 'Not available'), x, y + 32, 340);
   });
 
+  ctx.beginPath();                                    // ← added
   ctx.fillStyle = '#f8fafc';
   ctx.roundRect(1020, 285, 260, 260, 18);
   ctx.fill();

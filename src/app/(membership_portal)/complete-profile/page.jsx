@@ -355,7 +355,7 @@ function Step2Medical({ onNext, onBack, initialData }) {
 
 // ── STEP 3 — HOME ADDRESS ──
 function Step3Address({ onNext, onBack, initialData }) {
-  const EMPTY = { street:'', city:'', state:'', homePhone:'' };
+  const EMPTY = { street:'', city:'', state:'' };
   const [form, setForm]       = useState(EMPTY);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
@@ -366,31 +366,37 @@ function Step3Address({ onNext, onBack, initialData }) {
       street:    initialData.street    ?? '',
       city:      initialData.city      ?? '',
       state:     initialData.state     ?? '',
-      zipCode:   initialData.zipCode   ?? '',
-      homePhone: initialData.homePhone ?? '',
     });
   }, [initialData]);
 
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   const submit = async () => {
-    if (!form.street || !form.city || !form.state ) {
-      setError('Street, city, state are required.');
-      return;
-    }
-    setError('');
-    setLoading(true);
-    try {
-      const home = { ...form };
-      if (!home.homePhone) delete home.homePhone;
-      const { data } = await saveAddress({ home });
-      onNext(data.profileStep);
-    } catch (err) {
-      setError(err?.response?.data?.message || 'Failed to save. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (!form.street || !form.city || !form.state) {
+    setError('Street, city, state are required.');
+    return;
+  }
+
+  setError('');
+  setLoading(true);
+
+  try {
+    const home = {
+      ...form,
+      country: 'USA',
+      zipCode: '27513', // Cary, North Carolina
+    };
+
+    if (!home.homePhone) delete home.homePhone;
+
+    const { data } = await saveAddress({ home });
+    onNext(data.profileStep);
+  } catch (err) {
+    setError(err?.response?.data?.message || 'Failed to save. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="space-y-5 step-enter">
