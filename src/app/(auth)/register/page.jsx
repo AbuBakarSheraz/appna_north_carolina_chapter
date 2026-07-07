@@ -411,9 +411,9 @@ export default function RegisterPage() {
                     </div>
                     <span className="text-sm text-gray-600 leading-relaxed">
                       I agree to the{' '}
-                      <Link href="/terms" className="text-[#7a1f3d] font-medium hover:underline">Terms of Service</Link>
+                      <Link href="/organization"  target="_blank" className="text-[#7a1f3d] font-medium hover:underline">Terms of Service</Link>
                       {' '}and{' '}
-                      <Link href="/privacy" className="text-[#7a1f3d] font-medium hover:underline">Privacy Policy</Link>
+                      <Link href="/organization"  target="_blank" className="text-[#7a1f3d] font-medium hover:underline">Privacy Policy</Link>
                     </span>
                   </label>
 

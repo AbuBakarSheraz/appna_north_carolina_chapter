@@ -177,8 +177,8 @@ export default function LoginPage() {
             <div className="mt-10 lg:mt-0 space-y-2.5">
               {[
                 { icon: '🔒', label: 'Secure 256-bit encryption' },
-                { icon: '🏥', label: 'Verified physicians only' },
-                { icon: '🌐', label: '2,400+ members nationwide' },
+                // { icon: '🏥', label: 'Verified physicians only' },
+                // { icon: '🌐', label: '2,400+ members nationwide' },
               ].map(({ icon, label }) => (
                 <div key={label} className="trust-badge">
                   <span>{icon}</span>

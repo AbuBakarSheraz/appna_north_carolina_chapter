@@ -504,8 +504,8 @@ const SQUARE_AMOUNTS = {
 };
 function PaymentSuccessModal({ open, onClose, message }) {
     const router = useRouter();
-  if (!open) return null;
-   const handleGotIt = () => {
+    if (!open) return null;
+    const handleGotIt = () => {
     onClose(); // Close the modal
     router.push("/dashboard"); // Navigate to dashboard
   };

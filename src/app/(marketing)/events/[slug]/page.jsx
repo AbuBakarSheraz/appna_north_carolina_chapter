@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { CalendarDays, CreditCard, Loader2, MapPin, Minus, Plus, Ticket } from 'lucide-react';
 import { getEvent, payEventWithSquareToken, registerForEvent } from '../../../../lib/events';
 import SquarePaymentOptions from '../../../../components/payments/SquarePaymentOptions';
+import { useRouter } from 'next/navigation';
 
 const US_PREFIX = '+1 ';
 const BASE_FIELDS = [
@@ -102,7 +103,12 @@ if (field.type === 'PHONE') {
   return <input className={common} type={type} value={value ?? ''} onChange={(e) => onChange(e.target.value)} required={field.required} />;
 }
 function PaymentSuccessModal({ open, onClose, message }) {
+  const router = useRouter(); 
   if (!open) return null;
+     const handleGotIt = () => {
+    onClose(); // Close the modal
+    router.push("/"); // Navigate to dashboard
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -123,7 +129,7 @@ function PaymentSuccessModal({ open, onClose, message }) {
         <p className="mt-2 text-sm leading-relaxed text-green-700">{message}</p>
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleGotIt}
           className="mt-6 inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-5 py-3 text-sm font-semibold text-white hover:bg-green-700"
         >
           Got it
