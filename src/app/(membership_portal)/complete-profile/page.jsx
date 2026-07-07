@@ -355,7 +355,7 @@ function Step2Medical({ onNext, onBack, initialData }) {
 
 // ── STEP 3 — HOME ADDRESS ──
 function Step3Address({ onNext, onBack, initialData }) {
-  const EMPTY = { street:'', city:'', state:'', zipCode:'', country:'', homePhone:'' };
+  const EMPTY = { street:'', city:'', state:'', homePhone:'' };
   const [form, setForm]       = useState(EMPTY);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
@@ -367,7 +367,6 @@ function Step3Address({ onNext, onBack, initialData }) {
       city:      initialData.city      ?? '',
       state:     initialData.state     ?? '',
       zipCode:   initialData.zipCode   ?? '',
-      country:   initialData.country   ?? '',
       homePhone: initialData.homePhone ?? '',
     });
   }, [initialData]);
@@ -375,8 +374,8 @@ function Step3Address({ onNext, onBack, initialData }) {
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   const submit = async () => {
-    if (!form.street || !form.city || !form.state || !form.zipCode || !form.country) {
-      setError('Street, city, state, ZIP code, and country are required.');
+    if (!form.street || !form.city || !form.state ) {
+      setError('Street, city, state are required.');
       return;
     }
     setError('');
@@ -397,15 +396,15 @@ function Step3Address({ onNext, onBack, initialData }) {
     <div className="space-y-5 step-enter">
       <ErrorBanner message={error} />
       <SectionLabel icon={MapPin} text="Home address" />
-      <FloatingInput id="street"  label="Street address" value={form.street}  onChange={set('street')}  required />
+      <FloatingInput id="street"  label="Street address" value={form.street}  onChange={set('street')}  />
       <Grid2>
         <FloatingInput id="city"    label="City"     value={form.city}    onChange={set('city')}    required />
         <FloatingInput id="state"   label="State"    value={form.state}   onChange={set('state')}   required />
-        <FloatingInput id="zip"     label="ZIP code" value={form.zipCode} onChange={set('zipCode')} required />
-        <FloatingInput id="country" label="Country"  value={form.country} onChange={set('country')} required />
+        {/* <FloatingInput id="zip"     label="ZIP code" value={form.zipCode} onChange={set('zipCode')} required />
+        <FloatingInput id="country" label="Country"  value={form.country} onChange={set('country')} required /> */}
       </Grid2>
-      <SectionLabel icon={Phone} text="Contact" />
-      <FloatingInput id="homePhone" label="Home phone (optional)" value={form.homePhone} onChange={set('homePhone')} placeholder="+1 (800) 555-0199" />
+      {/* <SectionLabel icon={Phone} text="Contact" />
+      <FloatingInput id="homePhone" label="Home phone (optional)" value={form.homePhone} onChange={set('homePhone')} placeholder="+1 (800) 555-0199" /> */}
       <div className="flex gap-3 pt-1">
         <GhostBtn onClick={onBack} icon={ArrowLeft}>Back</GhostBtn>
         <PrimaryBtn onClick={submit} loading={loading}>Save & Continue <ArrowRight size={15} /></PrimaryBtn>
