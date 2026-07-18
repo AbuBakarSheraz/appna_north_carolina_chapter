@@ -20,6 +20,10 @@ export const saveBasicInfo = (formData) =>
   api.post('/profile/basic', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+  export const registerAlreadyMember = (formData) =>
+  api.post('/already-member/register', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
 // ─── Step 2: Medical Education ────────────────────────────────────
 export const saveMedicalEducation = (data) =>
