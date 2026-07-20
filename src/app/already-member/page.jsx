@@ -169,8 +169,13 @@ export default function AlreadyMemberPage() {
   const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
   const submit = async () => {
+    // street and state aren't shown as required in the UI, but the backend
+    // still expects a value — fall back to sensible defaults when left blank.
+    const street = form.street.trim() || 'Not entered by user';
+    const state = form.state.trim() || 'North Carolina';
+
     const required = ['email', 'username', 'password', 'firstName', 'lastName', 'phoneNumber',
-      'institutionName', 'graduationYear', 'primarySpecialty', 'street', 'city', 'state'];
+      'institutionName', 'graduationYear', 'primarySpecialty', 'city'];
     if (required.some((k) => !form[k])) {
       setError('Please fill in all required fields, marked with *.');
       return;
@@ -183,7 +188,7 @@ export default function AlreadyMemberPage() {
     setLoading(true);
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => { if (v !== '') fd.append(k, v); });
+      Object.entries({ ...form, street, state }).forEach(([k, v]) => { if (v !== '') fd.append(k, v); });
       if (image) fd.append('image', image);
       await registerAlreadyMember(fd);
       setSubmitted(true);
@@ -305,10 +310,10 @@ export default function AlreadyMemberPage() {
               </Grid2>
 
               <SectionLabel icon={MapPin} text="Home address" />
-              <FloatingInput id="street" label="Street address" value={form.street} onChange={set('street')}  />
+              <FloatingInput id="street" label="Street address" value={form.street} onChange={set('street')} />
               <Grid2>
-                <FloatingInput id="city" label="City" value={form.city} onChange={set('city')} required  />
-                <FloatingInput id="state" label="State" value={form.state} onChange={set('state')}  />
+                <FloatingInput id="city" label="City" value={form.city} onChange={set('city')} required />
+                <FloatingInput id="state" label="State" value={form.state} onChange={set('state')} />
               </Grid2>
 
               <SectionLabel icon={CreditCard} text="Membership type" />
