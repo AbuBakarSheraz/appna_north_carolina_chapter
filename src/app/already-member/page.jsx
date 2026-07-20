@@ -188,7 +188,7 @@ export default function AlreadyMemberPage() {
       await registerAlreadyMember(fd);
       setSubmitted(true);
     } catch (err) {
-      setError(err?.response?.data?.message || 'Something went wrong. Please try again.');
+      setError(err?.response?.data?.message || 'Image Size must be less than 5 MB.');
     } finally {
       setLoading(false);
     }
@@ -305,10 +305,10 @@ export default function AlreadyMemberPage() {
               </Grid2>
 
               <SectionLabel icon={MapPin} text="Home address" />
-              <FloatingInput id="street" label="Street address" value={form.street} onChange={set('street')} required />
+              <FloatingInput id="street" label="Street address" value={form.street} onChange={set('street')}  />
               <Grid2>
-                <FloatingInput id="city" label="City" value={form.city} onChange={set('city')} required />
-                <FloatingInput id="state" label="State" value={form.state} onChange={set('state')} required />
+                <FloatingInput id="city" label="City" value={form.city} onChange={set('city')} required  />
+                <FloatingInput id="state" label="State" value={form.state} onChange={set('state')}  />
               </Grid2>
 
               <SectionLabel icon={CreditCard} text="Membership type" />
