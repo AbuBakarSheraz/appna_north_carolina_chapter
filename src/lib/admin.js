@@ -11,9 +11,15 @@ export const getAdminUsers = (page = 1, limit = 20, search = '') =>
 
 export const getPendingPayments = () =>
   api.get('/admin/pending-payments');
+export const getPendingSponsorships = () =>
+  api.get('/admin/pending-sponsorships');
+export const confirmSponsorship = (id) =>
+  api.post(`/admin/confirm-sponsorship/${id}`);
 
 export const confirmPayment = (userId) =>
   api.patch(`/admin/confirm-payment/${userId}`);
 
 export const revokeMembership = (userId) =>
   api.patch(`/admin/revoke-membership/${userId}`);
+export const getAllSponsorships = (status) =>
+  api.get('/admin/sponsorships', { params: status ? { status } : {} });

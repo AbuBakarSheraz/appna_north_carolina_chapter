@@ -244,12 +244,13 @@ export default function SponsorshipPage() {
 
                   {/* CTA */}
                   <Link
-                    href="/contact_us"
+                    href="/sponsorship"
                     className="mt-8 block text-center rounded-xl py-3 px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90"
                     style={{ backgroundColor: pkg.color }}
                   >
-                    Contact Us to Sponsor
+                    Buy Sponsorship
                   </Link>
+                  
                 </div>
               </div>
             );
@@ -272,6 +273,13 @@ export default function SponsorshipPage() {
         >
           <Mail size={18} />
           Get in Touch
+        </Link>
+        <Link
+          href="/sponsorship"
+          className="inline-flex items-center gap-2 bg-[#7a1f3d] text-white px-7 py-3 mx-4 rounded-xl font-semibold hover:bg-[#5f1730] transition"
+        >
+          <Mail size={18} />
+          Buy Sponsorship
         </Link>
       </section>
     </div>

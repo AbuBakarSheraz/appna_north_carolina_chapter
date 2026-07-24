@@ -10,6 +10,7 @@ import {
 import {
   getAdminStats, getAdminUsers,
   getPendingPayments, confirmPayment, revokeMembership,
+  getPendingSponsorships, confirmSponsorship,getAllSponsorships,
 } from '../../../../lib/admin';
 import { logout } from '../../../../lib/auth';
 import { clearAccessToken } from '../../../../store/auth';
@@ -362,6 +363,114 @@ function PendingPaymentsTable({ onConfirm, refreshKey }) {
   );
 }
 
+function SponsorshipsTable({ onConfirm, refreshKey }) {
+  const [filter, setFilter] = useState('PAID'); // 'PAID' = pending, 'CONFIRMED' = confirmed
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const { data: res } = await getAllSponsorships(filter);
+        setData(res.data);
+      } catch { }
+      finally { setLoading(false); }
+    })();
+  }, [refreshKey, filter]);
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-4">
+        {[
+          { key: 'PAID', label: 'Pending' },
+          { key: 'CONFIRMED', label: 'Confirmed' },
+        ].map((f) => (
+          <button key={f.key} onClick={() => setFilter(f.key)}
+            className="rounded-lg px-3 py-2 text-xs font-semibold transition-colors"
+            style={{
+              background: filter === f.key ? '#1a2744' : '#f3f4f6',
+              color: filter === f.key ? 'white' : '#6b7280',
+            }}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="rounded-2xl border border-gray-100 p-12 text-center shadow-sm bg-white">
+          <Loader2 size={20} className="animate-spin text-[#1a2744] mx-auto mb-2" />
+          <p className="text-sm text-gray-400">Loading sponsorships...</p>
+        </div>
+      ) : data.length === 0 ? (
+        <div className="rounded-2xl border border-gray-100 p-12 text-center shadow-sm bg-white">
+          <CheckCircle2 size={32} className="text-green-400 mx-auto mb-3" />
+          <p className="font-semibold text-gray-700">
+            {filter === 'PAID' ? 'All clear!' : 'No confirmed sponsors yet.'}
+          </p>
+          <p className="text-sm text-gray-400 mt-1">
+            {filter === 'PAID' ? 'No sponsorships awaiting confirmation.' : 'Confirmed sponsorships will appear here.'}
+          </p>
+        </div>
+      ) : (
+        <div className={`rounded-2xl border overflow-hidden shadow-sm bg-white ${filter === 'PAID' ? 'border-amber-100' : 'border-green-100'}`}>
+          <div className={`h-1 w-full ${filter === 'PAID' ? 'bg-amber-400' : 'bg-green-500'}`} />
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className={filter === 'PAID' ? 'bg-amber-50 border-b border-amber-100' : 'bg-green-50 border-b border-green-100'}>
+                  <th className={`text-left px-5 py-3 text-xs font-bold uppercase tracking-wider ${filter === 'PAID' ? 'text-amber-800' : 'text-green-800'}`}>Business</th>
+                  <th className={`text-left px-5 py-3 text-xs font-bold uppercase tracking-wider hidden sm:table-cell ${filter === 'PAID' ? 'text-amber-800' : 'text-green-800'}`}>Tier</th>
+                  <th className={`text-left px-5 py-3 text-xs font-bold uppercase tracking-wider hidden md:table-cell ${filter === 'PAID' ? 'text-amber-800' : 'text-green-800'}`}>Amount</th>
+                  <th className={`text-left px-5 py-3 text-xs font-bold uppercase tracking-wider hidden lg:table-cell ${filter === 'PAID' ? 'text-amber-800' : 'text-green-800'}`}>
+                    {filter === 'PAID' ? 'Paid' : 'Confirmed'}
+                  </th>
+                  {filter === 'PAID' && (
+                    <th className="text-right px-5 py-3 text-xs font-bold text-amber-800 uppercase tracking-wider">Action</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className={filter === 'PAID' ? 'divide-y divide-amber-50' : 'divide-y divide-green-50'}>
+                {data.map((s) => (
+                  <tr key={s.id} className={filter === 'PAID' ? 'hover:bg-amber-50/40 transition-colors' : 'hover:bg-green-50/40 transition-colors'}>
+                    <td className="px-5 py-4">
+                      <p className="font-semibold text-gray-900 text-sm">{s.businessName}</p>
+                      <p className="text-xs text-gray-400">{s.contactName} · {s.contactEmail}</p>
+                      <p className="text-xs text-gray-400">{s.contactPhone}</p>
+                    </td>
+                    <td className="px-5 py-4 hidden sm:table-cell">
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider border"
+                        style={{ background: '#fdf2f5', color: '#7a1f3d', borderColor: '#fecdd3' }}>{s.tier}</span>
+                    </td>
+                    <td className="px-5 py-4 hidden md:table-cell">
+                      <span className="font-bold text-gray-900">${s.amount.toLocaleString()}</span>
+                      <span className="text-xs text-gray-400 ml-1">USD</span>
+                    </td>
+                    <td className="px-5 py-4 hidden lg:table-cell">
+                      <span className="text-xs text-gray-500">
+                        {formatDate(filter === 'PAID' ? s.paidAt : s.confirmedAt)}
+                      </span>
+                    </td>
+                    {filter === 'PAID' && (
+                      <td className="px-5 py-4 text-right">
+                        <button onClick={() => onConfirm(s)}
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white hover:bg-green-700 transition-colors shadow-sm">
+                          <CheckCircle2 size={12} /> Confirm Sponsorship
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 // ─── MAIN ADMIN DASHBOARD ─────────────────────────────────────────
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -369,6 +478,8 @@ export default function AdminDashboardPage() {
   const [stats, setStats]       = useState(null);
   const [modal, setModal]       = useState(null);  // { user, action: 'confirm' | 'revoke' }
   const [actionLoading, setActionLoading] = useState(false);
+  const [sponsorModal, setSponsorModal] = useState(null);       // ← add
+  const [sponsorLoading, setSponsorLoading] = useState(false);  // ← add
   const [toast, setToast]       = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -396,6 +507,17 @@ export default function AdminDashboardPage() {
     finally { setActionLoading(false); }
   };
 
+  const handleConfirmSponsorship = async () => {
+  setSponsorLoading(true);
+  try {
+    await confirmSponsorship(sponsorModal.id);
+    setSponsorModal(null);
+    setRefreshKey(k => k + 1);
+    showToast('Sponsorship confirmed successfully.');
+  } catch { showToast('Failed. Please try again.'); }
+  finally { setSponsorLoading(false); }
+};
+
   const handleRevoke = async () => {
     setActionLoading(true);
     try {
@@ -416,6 +538,7 @@ export default function AdminDashboardPage() {
   const TABS = [
     { key: 'pending', label: 'Pending Payments', icon: Clock,  badge: stats?.pendingPayments },
     { key: 'members', label: 'All Members',       icon: Users,  badge: stats?.totalUsers },
+    { key: 'sponsorships', label: 'Sponsorships', icon: TrendingUp, badge: stats?.pendingSponsorships }, // ← add
     { key: 'events',  label: 'Events',            icon: CalendarDays, badge: stats?.totalEvents, href: '/admin/events' },
   ];
 
@@ -530,19 +653,26 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Tab content */}
-            <div key={tab} className="slide-up">
-              {tab === 'pending' && (
-                <PendingPaymentsTable
-                  onConfirm={(user) => setModal({ user, action: 'confirm' })}
-                  refreshKey={refreshKey}
-                />
-              )}
-              {tab === 'members' && (
-                <UsersTable
-                  onRevoke={(user) => setModal({ user, action: 'revoke' })}
-                />
-              )}
-            </div>
+           {/* Tab content */}
+<div key={tab} className="slide-up">
+  {tab === 'pending' && (
+    <PendingPaymentsTable
+      onConfirm={(user) => setModal({ user, action: 'confirm' })}
+      refreshKey={refreshKey}
+    />
+  )}
+  {tab === 'members' && (
+    <UsersTable
+      onRevoke={(user) => setModal({ user, action: 'revoke' })}
+    />
+  )}
+{tab === 'sponsorships' && (
+  <SponsorshipsTable                    // ← was PendingSponsorshipsTable
+    onConfirm={(s) => setSponsorModal(s)}
+    refreshKey={refreshKey}
+  />
+)}
+</div>
 
           </main>
         </div>
@@ -558,6 +688,34 @@ export default function AdminDashboardPage() {
           onCancel={() => setModal(null)}
         />
       )}
+
+      {sponsorModal && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
+    style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }}>
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-green-50">
+          <CheckCircle2 size={20} className="text-green-600" />
+        </div>
+        <h3 className="font-semibold text-gray-900">Confirm Sponsorship</h3>
+      </div>
+      <p className="text-sm text-gray-600 mb-5">
+        Confirm the <strong>${sponsorModal.amount.toLocaleString()}</strong> {sponsorModal.tier} sponsorship from{' '}
+        <strong>{sponsorModal.businessName}</strong> after verifying the Square payment?
+      </p>
+      <div className="flex gap-3">
+        <button onClick={() => setSponsorModal(null)}
+          className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
+          Cancel
+        </button>
+        <button onClick={handleConfirmSponsorship} disabled={sponsorLoading}
+          className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white flex items-center justify-center gap-2 bg-green-600">
+          {sponsorLoading ? <Loader2 size={14} className="animate-spin" /> : 'Confirm'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Toast notification */}
       {toast && (
