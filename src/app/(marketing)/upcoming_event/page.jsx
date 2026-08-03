@@ -8,11 +8,11 @@ import {
 import Image from 'next/image';
 // import concert.jpg from '../../../public/concert.jpg';
 const SCHEDULE = [
-  { time: '[REPLACE: 5:00 PM]', title: 'Doors Open and Bazaar Preview', desc: 'Arrive early to browse the APPNA NC Bazaar stalls before dinner service begins.', icon: Store },
-  { time: '[REPLACE: 6:30 PM]', title: 'Gala Dinner Service', desc: 'A full multi-course dinner served to all registered guests.', icon: UtensilsCrossed },
-  { time: '[REPLACE: 8:00 PM]', title: 'Welcome and Community Remarks', desc: 'A short address from APPNA NC leadership on the year\'s community impact.', icon: Sparkles },
-  { time: '[REPLACE: 8:30 PM]', title: 'Live Performance - Amanat Ali', desc: 'An evening of live music from acclaimed vocalist Amanat Ali.', icon: Music },
-  { time: '[REPLACE: 10:00 PM]', title: 'Bazaar Continues and Closing', desc: 'Stalls remain open as the evening winds down.', icon: Store },
+  { time: '5:00 PM', title: 'Doors Open and Bazaar Preview', desc: 'Arrive early to browse the APPNA NC Bazaar stalls before dinner service begins.', icon: Store },
+  { time: '6:30 PM', title: 'Gala Dinner Service', desc: 'A full multi-course dinner served to all registered guests.', icon: UtensilsCrossed },
+  { time: '8:00 PM', title: 'Welcome and Community Remarks', desc: 'A short address from APPNA NC leadership on the year\'s community impact.', icon: Sparkles },
+  { time: '8:30 PM', title: 'Live Performance - Amanat Ali', desc: 'An evening of live music from acclaimed vocalist Amanat Ali.', icon: Music },
+  { time: '10:00 PM', title: 'Bazaar Continues and Closing', desc: 'Stalls remain open as the evening winds down.', icon: Store },
 ];
 
 const BAZAAR_CATEGORIES = [
