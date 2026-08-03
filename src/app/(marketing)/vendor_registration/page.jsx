@@ -86,7 +86,7 @@ export default function BazaarVendorPage() {
                 <Clock size={15} /> 5:00 PM
               </span>
               <span className="inline-flex items-center gap-2 text-white/85">
-                <MapPin size={15} /> [REPLACE: Venue Name, City, NC]
+                <MapPin size={15} /> 201 Harrison Oaks Blvd, Cary, NC27513
               </span>
             </div>
           </div>
