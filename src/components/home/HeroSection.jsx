@@ -130,6 +130,53 @@ export default function HeroSection() {
                 <span className="absolute inset-0 rounded-2xl ring-1 ring-[#fbbf24]/20" />
                 <span className="relative z-10">Become a Sponsor</span>
               </Link>
+                         <Link
+                href="/vendor_registration"
+                className="
+                  group relative overflow-hidden
+                  flex items-center justify-center text-center
+                  h-10 sm:h-12 lg:h-14
+                  w-full sm:w-[220px] lg:w-[260px]
+                  px-5 sm:px-6
+                  rounded-2xl
+                  border border-[#fbbf24]/40
+                  bg-[#7a1f3d]/35
+                  backdrop-blur-md
+                  text-white font-semibold
+                  text-xs sm:text-sm
+                  tracking-wide
+                  transition-all duration-300
+                  hover:scale-[1.03]
+                  sponsor-glow
+                "
+              >
+                <span className="absolute inset-0 rounded-2xl ring-1 ring-[#fbbf24]/20" />
+                <span className="relative z-10">Become a Vendor</span>
+              </Link>
+               <Link
+                href="/upcoming_event"
+                className="
+                  group relative overflow-hidden
+                  flex items-center justify-center text-center
+                  h-10 sm:h-12 lg:h-14
+                  w-full sm:w-[220px] lg:w-[260px]
+                  px-5 sm:px-6
+                  rounded-2xl
+                  border border-[#fbbf24]/40
+                  bg-[#7a1f3d]/35
+                  backdrop-blur-md
+                  text-white font-semibold
+                  text-xs sm:text-sm
+                  tracking-wide
+                  transition-all duration-300
+                  hover:scale-[1.03]
+                  sponsor-glow
+                "
+              >
+                <span className="absolute inset-0 rounded-2xl ring-1 ring-[#fbbf24]/20" />
+                <span className="relative z-10">Annual Banquet & Entertainment Details</span>
+              </Link>
+    
             </div>
 
           </div>
