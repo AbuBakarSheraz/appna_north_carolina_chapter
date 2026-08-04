@@ -12,10 +12,9 @@ const STALLS = [
     accent: '#7a1f3d',
     perks: [
       'General floor Placement',
-      'One complementry Banquet ticket',
+      'No complementry Banquet ticket',
       '1 person per booth',
       'Additional ticketed person allowed',
-      'Listed in the event program',
     ],
   },
   {
@@ -25,11 +24,9 @@ const STALLS = [
     popular: true,
     perks: [
       'Priority placement near the main entrance',
-      'No complementry Banquet tickets',
+      'One* complementry Banquet tickets',
       '1 person per booth',
-      'Additional ticketed person allowed',
-      'Listed in the event program',
-      
+      'Additional ticketed person allowed',     
     ],
   },
 ];

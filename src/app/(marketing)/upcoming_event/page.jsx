@@ -7,13 +7,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 // import concert.jpg from '../../../public/concert.jpg';
-const SCHEDULE = [
-  { time: '5:00 PM', title: 'Doors Open and Bazaar Preview', desc: 'Arrive early to browse the APPNA NC Bazaar stalls before dinner service begins.', icon: Store },
-  { time: '6:30 PM',  title: 'Welcome and Community Remarks', desc: 'A short address from APPNA NC leadership on the year\'s community impact.', icon: Sparkles  },
-  { time: '8:00 PM', title: 'Gala Dinner Service', desc: 'A full multi-course dinner served to all registered guests.', icon: UtensilsCrossed },
-  { time: '8:30 PM', title: 'Live Performance - Amanat Ali', desc: 'An evening of live music from acclaimed vocalist Amanat Ali.', icon: Music },
-  { time: '10:00 PM', title: 'Bazaar Continues and Closing', desc: 'Stalls remain open as the evening winds down.', icon: Store },
-];
+
 
 const BAZAAR_CATEGORIES = [
   { label: 'Fashion and Jewelry', desc: 'Local boutiques and designers showcasing apparel and accessories.' },
@@ -175,33 +169,6 @@ export default function BanquetEventPage() {
             })}
           </div>
         </section>
-
-        <section id="schedule" className="max-w-4xl mx-auto px-6 sm:px-10 py-20 sm:py-28">
-          <div className="text-center mb-14">
-            <p className="text-xs font-bold uppercase tracking-widest text-[#7a1f3d] mb-2">The Evening</p>
-            <h2 className="display-font text-3xl sm:text-4xl font-semibold text-gray-900">How the night unfolds</h2>
-          </div>
-
-          <div className="relative pl-8 sm:pl-10">
-            <div className="timeline-line absolute left-[11px] sm:left-[13px] top-2 bottom-2 w-px opacity-15" />
-            <div className="space-y-10">
-              {SCHEDULE.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.title} className="relative">
-                    <div className="absolute -left-8 sm:-left-10 top-0 h-6 w-6 sm:h-7 sm:w-7 rounded-full bg-[#7a1f3d] flex items-center justify-center ring-4 ring-white">
-                      <Icon size={12} className="text-white" />
-                    </div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-[#7a1f3d] mb-1">{item.time}</p>
-                    <h3 className="font-semibold text-gray-900 text-lg mb-1">{item.title}</h3>
-                    <p className="text-sm text-gray-500 leading-relaxed max-w-lg">{item.desc}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
         <section className="panel-bg noise-overlay relative overflow-hidden text-white">
           <div className="max-w-5xl mx-auto px-6 sm:px-10 py-20 sm:py-24 grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-10 items-center">
             <div className="flex justify-center md:justify-start">
