@@ -11,7 +11,7 @@ const SLIDES = [
   { src: '/bazar_audience.png', alt: 'Guests browsing the APPNA NC Bazaar', caption: 'A Night to Remember' },
 ];
 
-const AUTOPLAY_MS = 4500;
+const AUTOPLAY_MS = 4000;
 const SWIPE_THRESHOLD = 50;
 
 export default function EventFlyerSlider() {
