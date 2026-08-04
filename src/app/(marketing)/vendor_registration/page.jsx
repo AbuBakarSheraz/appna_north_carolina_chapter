@@ -9,25 +9,25 @@ const STALLS = [
   {
     label: 'Standard Stall',
     price: 500,
-    href: 'https://square.link/u/gjoEs3S9?src=sheet',
     accent: '#7a1f3d',
     perks: [
-      'Booth size, e.g. 8x8 ft space',
-      '1 table + 2 chairs included',
-      'Placement in the general Bazaar floor',
+      'General floor Placement',
+      'One complementry Banquet ticket',
+      '1 person per booth',
+      'Additional ticketed person allowed',
       'Listed in the event program',
     ],
   },
   {
     label: 'Premium Stall',
     price: 1000,
-    href: 'https://square.link/u/yGYU2um3?src=sheet',
     accent: '#1a3a5c',
     popular: true,
     perks: [
-      'Booth size, e.g. 10x10 ft space',
-      '2 tables + 4 chairs included',
       'Priority placement near the main entrance',
+      'No complementry Banquet tickets',
+      '1 person per booth',
+      'Additional ticketed person allowed',
       'Listed in the event program',
       
     ],
@@ -102,8 +102,7 @@ export default function BazaarVendorPage() {
           </h2>
           <p className="text-gray-500 max-w-xl mx-auto leading-relaxed">
             The Bazaar runs throughout the evening alongside dinner and entertainment, giving your
-            business direct access to attendees and their families. Choose a stall option below and
-            complete payment securely through Square.
+            business direct access to attendees and their families.
           </p>
         </section>
 
@@ -135,13 +134,13 @@ export default function BazaarVendorPage() {
                 </ul>
 
                 <a
-                  href={stall.href}
+                  href="/contact_us"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="accent-btn inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white"
                   style={{ background: stall.accent, boxShadow: `0 4px 20px ${stall.accent}40` }}
                 >
-                  Reserve for ${stall.price.toLocaleString()} <ArrowRight size={15} />
+                  Talk to Us
                 </a>
               </div>
             ))}
