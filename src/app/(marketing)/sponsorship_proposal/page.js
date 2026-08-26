@@ -99,15 +99,15 @@ const benefits = [
   {
     title: "Exclusive Event Access",
     description:
-      "Enjoy premium access with complimentary tickets and on-site recognition at the APPNA NC Annual Banquet & Entertainment 2026.",
+      "Enjoy premium access with complimentary tickets and on-site recognition at the  Annual APPNA NC Annual Banquet, Entertainment & CME 2026.",
     icon: Ticket,
   },
 ];
 
 export const metadata = {
-  title: "Sponsorship | APPNA NC Annual Banquet & Entertainment 2026",
+  title: "Sponsorship | APPNA NC Annual Banquet, Entertainment & CME 2026",
   description:
-    "Sponsor the APPNA North Carolina Annual Banquet & Entertainment 2026. Choose from Platinum, Gold, Silver, or Bronze packages and connect physicians and healthcare professionals.",
+    "Sponsor the APPNA NC Annual Banquet, Entertainment & CME 2026. Choose from Platinum, Gold, Silver, or Bronze packages and connect physicians and healthcare professionals.",
 };
 
 export default function SponsorshipPage() {

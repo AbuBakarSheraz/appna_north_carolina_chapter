@@ -15,7 +15,7 @@ export default function EventDetailsPage() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-semibold text-[#7a1f3d]">
-            APPNA NC Annual Banquet & Entertainment 2026
+            APPNA NC Annual Banquet, Entertainment & CME 2026
           </h1>
           <p className="mt-4 text-gray-600">
             An elegant evening of fine dining, live entertainment, and heartfelt
@@ -30,7 +30,7 @@ export default function EventDetailsPage() {
           <div className="relative h-80 lg:h-full">
             <Image
               src="/future_events/Annual_Banquet.png"
-              alt="APPNA NC Annual Banquet & Entertainment 2026"
+              alt="APPNA NC Annual Banquet, Entertainment & CME 2026"
               fill
               priority
               className="object-cover"

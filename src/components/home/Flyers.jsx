@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const SLIDES = [
-  { src: '/annual_banquet.png', alt: 'APPNA NC Annual Banquet & Entertainment 2026 flyer', caption: 'Annual Banquet & Entertainment' },
+  { src: '/annual_banquet.png', alt: 'APPNA NC Annual Banquet & Entertainment 2026 flyer', caption: 'APPNA NC Annual Banquet, Entertainment & CME 2026' },
   { src: '/concert.jpg', alt: 'Amanat Ali live performance', caption: 'Live Performance — Amanat Ali' },
   { src: '/bazar.jpg', alt: 'APPNA NC Bazaar stalls', caption: 'The APPNA NC Bazaar' },
   { src: '/bazar_audience.png', alt: 'Guests browsing the APPNA NC Bazaar', caption: 'A Night to Remember' },

@@ -5,7 +5,7 @@ import Link from "next/link";
 const events = [
  
  {
-    title: "Annual Banquet & Entertainment",
+    title: "APPNA NC Annual Banquet, Entertainment & CME 2026",
     date: "Saturday, October 10,2026",
     href: "/upcoming_events/annual_banquet",
     location: "North Carolina",
