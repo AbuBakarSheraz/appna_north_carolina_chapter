@@ -2,9 +2,9 @@ import Image from "next/image";
 import { CalendarDays, MapPin, DollarSign, Sparkles } from "lucide-react";
 
 export const metadata = {
-  title: "Annual Banquet & Entertainment 2026 | APPNA NC",
+  title: "APPNA NC Annual Banquet, Entertainment & CME 2026 | APPNA NC",
   description:
-    "Join APPNA NC's Annual Banquet & Entertainment 2026 — an elegant evening of fine dining, live entertainment, and heartfelt connections with physicians and families across North Carolina.",
+    "APPNA NC Annual Banquet, Entertainment & CME 2026 — an elegant evening of fine dining, live entertainment, and heartfelt connections with physicians and families across North Carolina.",
 };
 
 export default function EventDetailsPage() {

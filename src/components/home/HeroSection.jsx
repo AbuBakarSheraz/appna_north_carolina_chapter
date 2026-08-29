@@ -103,7 +103,7 @@ export default function HeroSection() {
               >
                 <span className="absolute inset-0 rounded-2xl ring-1 ring-[#fbbf24]/20" />
                 <span className="relative z-10">
-                  Annual Banquet & Entertainment Tickets
+                  Annual Banquet, Entertainment & CME Tickets
                 </span>
               </Link>
 
@@ -174,7 +174,7 @@ export default function HeroSection() {
                 "
               >
                 <span className="absolute inset-0 rounded-2xl ring-1 ring-[#fbbf24]/20" />
-                <span className="relative z-10">Annual Banquet & Entertainment Details</span>
+                <span className="relative z-10">Annual Banquet, Entertainment & CME Details</span>
               </Link>
     
             </div>
