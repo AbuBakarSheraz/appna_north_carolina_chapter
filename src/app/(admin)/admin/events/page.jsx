@@ -5,6 +5,7 @@ import { CalendarDays, CheckCircle2, Clock, DollarSign, Loader2, Plus, RefreshCw
 import {
   approveTicketRequest,
   createAdminEvent,
+  createCashTicket,
   getAdminEvents,
   getAdminEvent,
   getEventAnalytics,
@@ -33,14 +34,26 @@ const emptyEvent = {
   ],
 };
 
-function Input({ label, value, onChange, type = 'text', textarea = false }) {
+const emptyCashTicket = {
+  fullName: '',
+  email: '',
+  phone: '',
+  cnic: '',
+  city: '',
+  organization: '',
+  designation: '',
+  ticketQuantity: 1,
+  answers: {},
+};
+
+function Input({ label, value, onChange, type = 'text', textarea = false, required = false }) {
   return (
     <label>
       <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">{label}</span>
       {textarea ? (
-        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={4} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1a2744]" />
+        <textarea required={required} value={value} onChange={(e) => onChange(e.target.value)} rows={4} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1a2744]" />
       ) : (
-        <input type={type} value={value} onChange={(e) => onChange(type === 'number' ? Number(e.target.value) : e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1a2744]" />
+        <input required={required} type={type} value={value} onChange={(e) => onChange(type === 'number' ? Number(e.target.value) : e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1a2744]" />
       )}
     </label>
   );
@@ -65,8 +78,10 @@ export default function AdminEventsPage() {
   const [requestSearch, setRequestSearch] = useState('');
   const [analytics, setAnalytics] = useState(null);
   const [form, setForm] = useState(emptyEvent);
+  const [cashTicket, setCashTicket] = useState(emptyCashTicket);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [cashSaving, setCashSaving] = useState(false);
   const [toast, setToast] = useState('');
 
   const load = async () => {
@@ -80,6 +95,7 @@ export default function AdminEventsPage() {
       setEvents(eventsRes.data);
       setRequests(requestsRes.data);
       setAnalytics(analyticsRes.data);
+      setSelectedEventId((current) => current || eventsRes.data.find((event) => event.title === 'APPNA NC Annual Banquet, Entertainment & CME 2026')?.id || '');
     } finally {
       setLoading(false);
     }
@@ -133,6 +149,25 @@ export default function AdminEventsPage() {
     }
   };
 
+  const issueCashTicket = async (e) => {
+    e.preventDefault();
+    if (!selectedEventId) {
+      show('Select an event before creating a cash ticket.');
+      return;
+    }
+    setCashSaving(true);
+    try {
+      await createCashTicket(selectedEventId, cashTicket);
+      setCashTicket(emptyCashTicket);
+      await load();
+      show('Cash ticket approved, generated, and emailed.');
+    } catch (err) {
+      show(err?.response?.data?.message || 'Could not generate the cash ticket.');
+    } finally {
+      setCashSaving(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#f0f2f7] px-4 py-6 sm:px-8">
       <section className="mx-auto max-w-7xl space-y-6">
@@ -153,6 +188,45 @@ export default function AdminEventsPage() {
           <Stat icon={DollarSign} label="Revenue" value={`$${analytics?.totalRevenue ?? 0}`} />
           <Stat icon={CheckCircle2} label="Attendance" value={`${analytics?.attendance?.attendanceRate ?? 0}%`} />
         </div>
+
+        <form onSubmit={issueCashTicket} className="rounded-lg border border-emerald-200 bg-emerald-50/40 p-5 shadow-sm">
+          <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-950"><Ticket size={18} /> Create Cash Ticket</h2>
+              <p className="mt-1 text-xs text-gray-600">Records a cash payment and immediately creates an approved, QR-scannable ticket.</p>
+            </div>
+            {selectedEvent && <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Approved on creation</span>}
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <label>
+              <span className="mb-1 block text-xs font-bold uppercase tracking-wide text-gray-500">Event</span>
+              <select required value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)} className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm">
+                <option value="">Select event</option>
+                {events.map((event) => <option key={event.id} value={event.id}>{event.title}</option>)}
+              </select>
+            </label>
+            <Input required label="Full Name" value={cashTicket.fullName} onChange={(value) => setCashTicket({ ...cashTicket, fullName: value })} />
+            <Input required label="Email" type="email" value={cashTicket.email} onChange={(value) => setCashTicket({ ...cashTicket, email: value })} />
+            <Input required label="Phone" type="tel" value={cashTicket.phone} onChange={(value) => setCashTicket({ ...cashTicket, phone: value })} />
+            <Input label="Quantity" type="number" value={cashTicket.ticketQuantity} onChange={(value) => setCashTicket({ ...cashTicket, ticketQuantity: Math.max(1, value) })} />
+            <Input label="City" value={cashTicket.city} onChange={(value) => setCashTicket({ ...cashTicket, city: value })} />
+            <Input label="Organization" value={cashTicket.organization} onChange={(value) => setCashTicket({ ...cashTicket, organization: value })} />
+            <Input label="Designation" value={cashTicket.designation} onChange={(value) => setCashTicket({ ...cashTicket, designation: value })} />
+            {(selectedEvent?.registrationFields ?? []).filter((field) => !['fullName', 'email', 'phone', 'city', 'organization', 'designation'].includes(field.key)).map((field) => (
+              <Input
+                key={field.id ?? field.key}
+                required={field.required}
+                label={field.required ? `${field.label} *` : field.label}
+                type={field.type === 'EMAIL' ? 'email' : field.type === 'NUMBER' ? 'number' : field.type === 'DATE' ? 'date' : 'text'}
+                value={cashTicket.answers[field.key] ?? ''}
+                onChange={(value) => setCashTicket({ ...cashTicket, answers: { ...cashTicket.answers, [field.key]: value } })}
+              />
+            ))}
+          </div>
+          <button disabled={cashSaving || !selectedEventId} className="mt-5 inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50">
+            {cashSaving ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle2 size={15} />} Generate Approved Cash Ticket
+          </button>
+        </form>
 
         <div className="grid gap-6 lg:grid-cols-[.42fr_.58fr]">
           <form onSubmit={create} className="h-fit rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
@@ -226,8 +300,8 @@ export default function AdminEventsPage() {
                 <input value={requestSearch} onChange={(e) => setRequestSearch(e.target.value)} placeholder="Search by name, email, or ticket number" className="w-full text-sm outline-none" />
               </label>
               <div className="space-y-3">
-                {(selectedEvent?.ticketRequests ?? requests).filter((request) => {
-                  if (!selectedEvent && requestFilter !== 'ALL') {
+                {(selectedEventId ? requests.filter((request) => request.eventId === selectedEventId) : requests).filter((request) => {
+                  if (requestFilter !== 'ALL') {
                     const normalized = requestFilter === 'PENDING' ? 'AWAITING_ADMIN_CONFIRMATION' : requestFilter;
                     if (request.approvalStatus !== normalized) return false;
                   }
@@ -244,7 +318,7 @@ export default function AdminEventsPage() {
                       <div>
                         <p className="font-semibold text-gray-950">{request.fullName}</p>
                         <p className="text-sm text-gray-500">{request.event.title}</p>
-                        <p className="text-xs text-gray-400">{request.email} | {request.ticketQuantity ?? 1} {(request.ticketQuantity ?? 1) === 1 ? 'ticket' : 'tickets'} | ${request.paymentAmount} | {request.paymentStatus} | {request.approvalStatus}</p>
+                        <p className="text-xs text-gray-400">{request.email} | {request.ticketQuantity ?? 1} {(request.ticketQuantity ?? 1) === 1 ? 'ticket' : 'tickets'} | ${request.paymentAmount} | {request.paymentProvider ?? 'N/A'} · {request.paymentStatus} | {request.approvalStatus}</p>
                         {(request.tickets?.length ?? 0) > 0 && (
                           <p className="mt-1 text-xs text-gray-400">
                             Tickets: {request.tickets.map((ticket) => ticket.ticketNumber).join(', ')}
