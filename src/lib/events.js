@@ -19,6 +19,8 @@ export const deleteAdminEvent = (id) => api.post(`/admin/events/${id}/delete`);
 export const getTicketRequests = (params = {}) => api.get('/admin/events/requests', { params });
 export const approveTicketRequest = (id, notes = '') => api.post(`/admin/events/requests/${id}/approve`, { notes });
 export const rejectTicketRequest = (id, notes = '') => api.post(`/admin/events/requests/${id}/reject`, { notes });
+export const cancelTicketRequest = (id, notes = '') => api.post(`/admin/events/requests/${id}/cancel`, { notes });
+export const deleteTicketRequest = (id) => api.post(`/admin/events/requests/${id}/delete`);
 export const createCashTicket = (eventId, data) => api.post(`/admin/events/${eventId}/cash-tickets`, data);
 export const validateTicketQr = (qrPayload) => api.post('/admin/events/tickets/validate', { qrPayload });
 export const getMyNotifications = () => api.get('/notifications/me');

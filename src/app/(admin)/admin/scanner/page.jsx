@@ -6,6 +6,7 @@ import { validateTicketQr } from '../../../../lib/events';
 
 export default function AdminScannerPage() {
   const scannerRef = useRef(null);
+  const validatingRef = useRef(false);
   const [Html5Qrcode, setHtml5Qrcode] = useState(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
@@ -25,6 +26,8 @@ export default function AdminScannerPage() {
   }, []);
 
   const validate = async (payload) => {
+    if (validatingRef.current) return;
+    validatingRef.current = true;
     setLoading(true);
     try {
       const { data } = await validateTicketQr(payload);
@@ -37,6 +40,7 @@ export default function AdminScannerPage() {
       setResult({ status: 'Invalid', valid: false, message: err?.response?.data?.message || 'QR validation failed.' });
     } finally {
       setLoading(false);
+      validatingRef.current = false;
     }
   };
 
