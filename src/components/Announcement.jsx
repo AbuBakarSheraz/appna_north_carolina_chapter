@@ -2,69 +2,58 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { X } from "lucide-react";
 import { usePathname } from "next/navigation";
+
 export default function Announcement() {
   const pathname = usePathname();
- console.log("pathname:", pathname);
-  // Hide announcement on events pages
-  if (pathname.startsWith("/events")) {
-    return null;
-  }
   const [open, setOpen] = useState(true);
   const [showFab, setShowFab] = useState(false);
   const fabRef = useRef(null);
+  const hideAnnouncement = pathname.startsWith("/events");
 
-  // Auto close after 5 seconds
   useEffect(() => {
-  const hasSeenAnnouncement = localStorage.getItem("appna-announcement-seen");
+    if (hideAnnouncement) return undefined;
 
-  if (hasSeenAnnouncement) {
-    setOpen(false);
-    setShowFab(true);
-    return;
-  }
+    const hasSeenAnnouncement = localStorage.getItem("appna-announcement-seen");
+    if (hasSeenAnnouncement) {
+      const timer = setTimeout(() => {
+        setOpen(false);
+        setShowFab(true);
+      }, 0);
 
-  const timer = setTimeout(() => {
-    setOpen(false);
-    setShowFab(true);
+      return () => clearTimeout(timer);
+    }
 
-    localStorage.setItem("appna-announcement-seen", "true");
-  }, 5000);
+    const timer = setTimeout(() => {
+      setOpen(false);
+      setShowFab(true);
+      localStorage.setItem("appna-announcement-seen", "true");
+    }, 5000);
 
-  return () => clearTimeout(timer);
-}, []);
+    return () => clearTimeout(timer);
+  }, [hideAnnouncement]);
 
-const handleClose = () => {
-  setOpen(false);
-  setShowFab(true);
-
-  localStorage.setItem("appna-announcement-seen", "true");
-};
-
-  // Drag logic
   useEffect(() => {
     const fab = fabRef.current;
-    if (!fab) return;
+    if (!fab || hideAnnouncement) return undefined;
 
     let isDragging = false;
     let offsetX = 0;
     let offsetY = 0;
-
-    const startDrag = (e) => {
+    const startDrag = (event) => {
       isDragging = true;
-      const event = e.touches ? e.touches[0] : e;
-      offsetX = event.clientX - fab.offsetLeft;
-      offsetY = event.clientY - fab.offsetTop;
+      const pointer = event.touches ? event.touches[0] : event;
+      offsetX = pointer.clientX - fab.offsetLeft;
+      offsetY = pointer.clientY - fab.offsetTop;
     };
-
-    const onDrag = (e) => {
+    const onDrag = (event) => {
       if (!isDragging) return;
-      const event = e.touches ? e.touches[0] : e;
-      fab.style.left = `${event.clientX - offsetX}px`;
-      fab.style.top = `${event.clientY - offsetY}px`;
+      const pointer = event.touches ? event.touches[0] : event;
+      fab.style.left = `${pointer.clientX - offsetX}px`;
+      fab.style.top = `${pointer.clientY - offsetY}px`;
     };
-
     const stopDrag = () => {
       isDragging = false;
     };
@@ -75,7 +64,6 @@ const handleClose = () => {
     window.addEventListener("touchmove", onDrag);
     window.addEventListener("mouseup", stopDrag);
     window.addEventListener("touchend", stopDrag);
-
     return () => {
       fab.removeEventListener("mousedown", startDrag);
       fab.removeEventListener("touchstart", startDrag);
@@ -84,87 +72,20 @@ const handleClose = () => {
       window.removeEventListener("mouseup", stopDrag);
       window.removeEventListener("touchend", stopDrag);
     };
-  }, []);
+  }, [hideAnnouncement, showFab]);
+
+  const handleClose = () => {
+    setOpen(false);
+    setShowFab(true);
+    localStorage.setItem("appna-announcement-seen", "true");
+  };
+
+  if (hideAnnouncement) return null;
 
   return (
     <>
-      {/* MODAL */}
-      {open && (
-        <div
-          className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-8 md:py-12"
-          onClick={handleClose}
-        >
-          {/* CARD */}
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative bg-white w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col"
-            style={{
-              maxWidth: "420px",
-              maxHeight: "calc(100vh - 80px)",
-            }}
-          >
-            {/* Close Button */}
-            <button
-              onClick={handleClose}
-              aria-label="Close"
-              className="absolute top-3 right-3 z-20 flex items-center justify-center w-8 h-8 rounded-full transition hover:scale-110 active:scale-95"
-              style={{
-                background: "rgba(0,0,0,0.50)",
-                border: "1px solid rgba(255,255,255,0.2)",
-              }}
-            >
-              <X size={15} color="#fff" strokeWidth={2.5} />
-            </button>
-
-            {/* Image — scrollable if taller than viewport */}
-            <div className="overflow-y-auto flex-1">
-              <Image
-                src="/future_events/Annual_Banquet.png"
-                alt="APPNA NC Meet & Greet 2026"
-                width={440}
-                height={600}
-                className="w-full h-auto block"
-                priority
-              />
-            </div>
-
-            {/* CTA */}
-            <div
-              className="flex-shrink-0 px-5 py-4 flex flex-col gap-2"
-              style={{ borderTop: "1px solid #f0f0f0" }}
-            >
-              <a
-                href="/events"
-                // target="_blank"
-                rel="noopener noreferrer"
-                onClick={handleClose}
-                className="flex items-center justify-center w-full rounded-xl text-white font-semibold text-sm py-3 px-6 transition-all duration-200 hover:opacity-90 active:scale-95"
-                style={{
-                  background: "linear-gradient(135deg, #7a1f3d 0%, #9e2a50 100%)",
-                  boxShadow: "0 4px 14px rgba(122,31,61,0.35)",
-                }}
-              >
-                Buy Tickets Online
-              </a>
-              {/* <p className="text-center text-[11px] text-gray-400">
-                Secure payment via Square
-              </p> */}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* FLOATING BUTTON */}
-      {showFab && (
-        <div
-          ref={fabRef}
-          style={{ top: "15%", right: "8px" }}
-          className="fixed z-[998] flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500 text-white text-xs font-bold shadow-lg cursor-move animate-pulse select-none"
-          onClick={() => setOpen(true)}
-        >
-          Event
-        </div>
-      )}
+      {open ? <div className="fixed inset-0 z-[999] flex items-center justify-center bg-grove-dark/60 px-4 py-8 backdrop-blur-sm md:py-12" onClick={handleClose}><div role="dialog" aria-modal="true" aria-label="Featured event announcement" onClick={(event) => event.stopPropagation()} className="relative flex w-full max-w-[420px] flex-col overflow-hidden rounded-2xl bg-card shadow-2xl"><button type="button" onClick={handleClose} aria-label="Close announcement" className="absolute right-3 top-3 z-20 inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/25 bg-grove-dark/80 text-white transition hover:bg-grove-dark"><X size={15} strokeWidth={2.5} /></button><div className="max-h-[calc(100vh-160px)] flex-1 overflow-y-auto"><Image src="/future_events/Annual_Banquet.png" alt="APPNA NC Annual Banquet, Entertainment and CME 2026 flyer" width={440} height={600} className="block h-auto w-full" priority /></div><div className="flex shrink-0 border-t border-line p-5"><Link href="/events" onClick={handleClose} className="inline-flex w-full items-center justify-center rounded-xl bg-grove px-6 py-3 text-sm font-semibold text-white transition hover:bg-grove-dark">Buy Tickets Online</Link></div></div></div> : null}
+      {showFab ? <button ref={fabRef} type="button" style={{ top: "15%", right: "8px" }} onClick={() => setOpen(true)} className="fixed z-[998] flex h-16 w-16 cursor-move select-none items-center justify-center rounded-full bg-grove text-xs font-bold text-white shadow-lg transition hover:bg-grove-dark">Event</button> : null}
     </>
   );
 }

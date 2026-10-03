@@ -1,39 +1,5 @@
 import Image from "next/image";
-
-const committeeMembers = [
-  {
-    name: "Sohail Sarwar, MD",
-    role: "President",
-    year: "APPNA NC 2026",
-    image: "/president.png",
-    position: "center 12%",
-  },
-  {
-    name: "Mukesh Kumar, MD",
-    role: "President Elect",
-    year: "APPNA NC 2026",
-    image: "/mukesh.png",
-  },
-  {
-    name: "Arslan Afzal, MD",
-    role: "Secretary",
-    year: "APPNA NC 2026",
-    image: "/arslan.png",
-    position: "center 12%",
-  },
-  {
-    name: "M. Waleed Zeb",
-    role: "Treasurer",
-    year: "APPNA NC 2026",
-    image: "/waleed.png",
-  },
-  {
-    name: "Tanvir Ch, MD",
-    role: "Past President",
-    year: "APPNA NC 2026",
-    image: "/tanvir.png",
-  },
-];
+import { executiveTeam } from "../../../data/executiveTeam";
 export const metadata = {
   title: "Executive Committee | APPNA NC Leadership 2026",
   description:
@@ -60,27 +26,15 @@ export default function ExecutiveCommittee() {
 
         {/* Members Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {committeeMembers.map((member) => (
-            <div
-              key={member.name}
-              className="
-                group bg-white rounded-2xl
-                border border-gray-100
-                shadow-sm hover:shadow-2xl
-                transition-all duration-500
-                overflow-hidden
-              "
-            >
+          {executiveTeam.map((member) => (
+            <div key={member.name} className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl">
               {/* Image */}
               <div className="relative h-80 w-full overflow-hidden">
                 <Image
                   src={member.image}
                   alt={member.name}
                   fill
-                  className="
-                    object-cover object-top
-                    group-hover:scale-105 transition-transform duration-500
-                  "
+                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                   style={{ objectPosition: member.position }}
 
                 />

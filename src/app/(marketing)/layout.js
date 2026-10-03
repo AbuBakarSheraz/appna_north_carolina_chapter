@@ -1,8 +1,7 @@
-import "../globals.css";
 import Header from "../../components/shared/Header";
 import Footer from "../../components/shared/Footer";
 import Announcement from "../../components/Announcement";
-import '../../lib/interceptors';
+import "../../lib/interceptors";
 
 export const metadata = {
   title: "APPNA North Carolina | Healthcare & Community",

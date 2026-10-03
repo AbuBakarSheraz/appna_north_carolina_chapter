@@ -1,118 +1,98 @@
 "use client";
 
-import { Menu, X, Facebook, Linkedin,Instagram } from "lucide-react";
-import { useState } from "react";
+import { Facebook, Instagram, Linkedin, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "./Navbar";
 
+// Edit these to restyle the buttons
+const actionButton = "inline-flex items-center justify-center whitespace-nowrap rounded-full bg-grove px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-grove-dark";
+const mobileActionButton = "inline-flex w-full items-center justify-center rounded-full bg-grove px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-grove-dark";
+
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Close the mobile menu with the Escape key
+  useEffect(() => {
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setMobileOpen(false);
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, []);
+
+  const closeMenu = () => setMobileOpen(false);
+
   return (
     <>
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-22">
-            
-            {/* LOGO */}
-            <div className="flex items-center">
-              <Link href="/" className="cursor-pointer">
-              <Image
-                src="/logo.png"
-                alt="Organization Logo"
-                width={220}
-                height={100}
-                priority
-                className="h-18 w-auto object-contain"
-              />
-              </Link>
+      <header className="sticky top-0 z-50 border-b border-line bg-card/95 backdrop-blur">
+        <div className="mx-auto flex h-20 max-w-screen-2xl items-center justify-between gap-6 px-5 sm:px-6 lg:px-8">
+          {/* Logo */}
+          <Link href="/" className="shrink-0" aria-label="APPNA North Carolina home">
+            <Image src="/logo.png" alt="APPNA North Carolina logo" width={220} height={100} priority className="h-14 w-auto" />
+          </Link>
+
+          {/* Desktop menu: shows from 1536px and up */}
+          <div className="hidden items-center gap-6 2xl:flex">
+            <Navbar />
+            <div className="flex items-center gap-2">
+              <Link href="/donate" className={actionButton}>Donate</Link>
+              <Link href="/register" className={actionButton}>Join Us</Link>
+              <Link href="/login" className={actionButton}>Login</Link>
             </div>
-
-            {/* DESKTOP NAV */}
-            <div className="hidden lg:flex items-center gap-4">
-              <Navbar />
-
-              {/* CTA */}
-              <Link href='/donate' className="cursor-pointer ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
-                Donate
-              </Link>
-               <Link href='/register' className="cursor-pointer ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
-                Join Us
-              </Link>
-               <Link href='/login' className="cursor-pointer ml-4 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-xl hover:bg-primary-dark transition">
-                Login
-              </Link>
-            </div>
-
-            {/* MOBILE MENU BUTTON */}
-            <button
-              onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100"
-            >
-              <Menu size={26} />
-            </button>
           </div>
+
+          {/* Mobile menu button: shows below 1536px */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-navigation"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-grove transition hover:bg-grove-soft 2xl:hidden"
+          >
+            <Menu size={23} aria-hidden="true" />
+            <span className="sr-only">Open navigation</span>
+          </button>
         </div>
       </header>
 
-      {/* MOBILE OVERLAY */}
-      {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40"
-          onClick={() => setMobileOpen(false)}
-        />
-      )}
+      {/* Dark overlay behind the mobile menu */}
+      {mobileOpen ? (
+        <button type="button" aria-label="Close navigation" onClick={closeMenu} className="fixed inset-0 z-40 bg-grove-dark/45 2xl:hidden" />
+      ) : null}
 
-      {/* MOBILE DRAWER */}
-      <div
-        className={`fixed top-0 right-0 h-full w-80 bg-[#F9FAF7] z-50 transform transition-transform duration-900
-          ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}
+      {/* Mobile menu panel (slides in from the right) */}
+      <aside
+        id="mobile-navigation"
+        aria-hidden={!mobileOpen}
+        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-card p-6 shadow-2xl transition-transform duration-300 2xl:hidden ${mobileOpen ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="flex flex-col h-full">
-
-          {/* CLOSE */}
-          <div className="flex justify-end p-4">
-            <button
-              onClick={() => setMobileOpen(false)}
-              className="p-2 rounded-lg hover:bg-gray-100"
-            >
-              <X size={26} />
-            </button>
-          </div>
-
-          {/* NAV */}
-          <div className="px-6">
-            <Navbar isMobile onItemClick={() => setMobileOpen(false)} />
-          </div>
-
-          {/* CTA */}
-          <div className="px-6 mt-6">
-            <Link href='/donate' className="cursor-pointer w-full px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
-              Donate
-            </Link>           
-          </div>
-           <div className="px-6 mt-7">
-            <Link href='/register' className="cursor-pointer w-full px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
-              Join Us
-            </Link>
-          </div>
-           <div className="px-6 mt-7">
-            <Link href='/login' className="cursor-pointerw-full px-6.25 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
-              Login
-            </Link>
-          </div>
-
-          {/* SOCIAL */}
-          <div className="mt-auto p-6 flex gap-6 text-gray-500">
-            <Facebook className="hover:text-primary transition cursor-pointer" />
-            <Linkedin className="hover:text-primary transition cursor-pointer" />
-            <Instagram className="hover:text-primary transition cursor-pointer" />
-
-          </div>
+        <div className="flex items-center justify-between border-b border-line pb-5">
+          <span className="font-display text-2xl font-medium text-grove-dark">Explore APPNA NC</span>
+          <button type="button" onClick={closeMenu} className="inline-flex h-10 w-10 items-center justify-center rounded-full text-grove transition hover:bg-grove-soft">
+            <X size={22} aria-hidden="true" />
+            <span className="sr-only">Close navigation</span>
+          </button>
         </div>
-      </div>
+
+        <div className="pt-4">
+          <Navbar isMobile onItemClick={closeMenu} />
+        </div>
+
+        <div className="mt-6 grid gap-3 border-t border-line pt-6">
+          <Link href="/donate" onClick={closeMenu} className={mobileActionButton}>Donate</Link>
+          <Link href="/register" onClick={closeMenu} className={mobileActionButton}>Join Us</Link>
+          <Link href="/login" onClick={closeMenu} className={mobileActionButton}>Login</Link>
+        </div>
+
+        <div className="mt-auto flex gap-5 pt-8 text-ink-soft">
+          <Facebook className="h-5 w-5 transition hover:text-grove" aria-label="Facebook" />
+          <Linkedin className="h-5 w-5 transition hover:text-grove" aria-label="LinkedIn" />
+          <Instagram className="h-5 w-5 transition hover:text-grove" aria-label="Instagram" />
+        </div>
+      </aside>
     </>
   );
 }

@@ -9,6 +9,10 @@ export default function sitemap() {
       lastModified: new Date(),
     },
     {
+      url: "https://appnanc.org/commitees",
+      lastModified: new Date(),
+    },
+    {
       url: "https://appnanc.org/executive_team",
       lastModified: new Date(),
     },

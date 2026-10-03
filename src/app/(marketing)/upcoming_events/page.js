@@ -1,34 +1,13 @@
 import { CalendarDays, MapPin } from "lucide-react";
 import Link from "next/link";
+import FadeInCard from "../../../components/FadeInCard";
+import { events } from "../../../data/events";
 
-
-const events = [
- 
- {
-    title: "APPNA NC Annual Banquet, Entertainment & CME 2026",
-    date: "Saturday, October 10,2026",
-    href: "/upcoming_events/annual_banquet",
-    location: "North Carolina",
-    image: "/future_events/Annual_Banquet.png",
-    description:
-      "A festive evening celebration with families and community members, promoting unity, cultural connection, and shared values.",
-  },
-  {
-    title: "Winter GTG",
-    date: "soon...",
-    href: "/upcoming_events/winter_gtg",
-    location: "North Carolina",
-    image: "/future_events/winter.png",
-    description:
-      "An elegant winter evening focused on professional networking, reflection on the year’s achievements, and future planning.",
-  },
-];
 export const metadata = {
   title: "Upcoming Events | Connecting APPNA NC as One Family",
   description:
     "Explore APPNA North Carolina’s upcoming professional, cultural, and community events designed to bring physicians and families together, strengthen relationships, promote wellness, and foster mentorship in alignment with our 2026 theme, “Connecting Our Chapter as a Family.”",
 };
-
 
 export default function UpcomingEvents() {
   return (
@@ -48,12 +27,9 @@ export default function UpcomingEvents() {
         {/* Events Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {events.map((event, index) => (
-            <div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+            <FadeInCard
+              key={event.href}
+              index={index}
               className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
             >
               {/* Image */}
@@ -87,13 +63,14 @@ export default function UpcomingEvents() {
 
                 <div className="mt-6">
                   <Link
-                  href={event.href}
-                  className="text-sm font-medium text-[#7a1f3d] hover:text-[#5f1730] transition">
+                    href={event.href}
+                    className="text-sm font-medium text-[#7a1f3d] hover:text-[#5f1730] transition"
+                  >
                     Learn More →
                   </Link>
                 </div>
               </div>
-            </div>
+            </FadeInCard>
           ))}
         </div>
       </div>

@@ -101,15 +101,32 @@ export default function OrganizationSection() {
 
         </div>
 
+        <section id="presidents-message" className="mt-16 rounded-2xl border border-appna-maroon/10 bg-appna-surface p-6 sm:p-8">
+          <p className="font-accent text-xs font-semibold uppercase tracking-[0.2em] text-appna-maroon">From the president</p>
+          <h2 className="mt-3 font-display text-3xl font-medium text-appna-maroon-dark">Connecting Our Chapter as a Family</h2>
+          <div className="mt-5 max-w-3xl space-y-5 text-base leading-7 text-appna-ink-soft">
+            <p>It is my privilege and honor to serve as the APPNA North Carolina President for 2026. I am truly humbled by the trust you have placed in me and my team.</p>
+            <p>The theme for APPNA NC this year is “Connecting Our Chapter as a Family.”</p>
+            <div>
+              <h3 className="font-accent text-sm font-semibold uppercase tracking-[0.12em] text-appna-maroon">Our goals for 2026</h3>
+              <ul className="mt-3 list-disc space-y-2 pl-5">
+                <li>Foster mutual respect and trust among all members and chapter leadership.</li>
+                <li>Promote the health and wellness of our physicians and communities.</li>
+                <li>Launch a mentorship program for future physicians.</li>
+                <li>Build resources and support systems for young physicians entering the United States for residency opportunities.</li>
+              </ul>
+            </div>
+            <p>I would also like to express my sincere gratitude to our Executive Committee members for their dedication, energy, and innovative ideas. Together, we are committed to making 2026 a highly productive and successful year for our chapter.</p>
+          </div>
+          <div className="mt-7 border-t border-appna-maroon/10 pt-5">
+            <p className="font-semibold text-appna-ink">Sohail Sarwar, MD</p>
+            <p className="mt-1 text-sm text-appna-ink-soft">President, APPNA North Carolina — 2026</p>
+          </div>
+        </section>
+
         {/* CTA */}
         <div className="mt-16 flex justify-start">
-          <Link
-            href="/bylaws.pdf"
-            target="_blank"
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-xl
-              bg-primary text-white font-semibold
-              hover:bg-primary-dark transition"
-          >
+          <Link href="/bylaws.pdf" target="_blank" className="inline-flex items-center gap-3 rounded-xl bg-primary px-6 py-3 font-semibold text-white transition hover:bg-primary-dark">
             <FileText size={20} />
             View Constitution & Bylaws (PDF)
           </Link>

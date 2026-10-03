@@ -14,34 +14,28 @@ const navItems = [
   { label: "Contact", href: "/contact_us" },
 ];
 
+// Edit these three lines to restyle every link
+const linkBase = "block whitespace-nowrap text-xs font-semibold uppercase tracking-wide border-b-2 transition";
+const linkActive = "text-grove border-ridge";
+const linkIdle = "text-ink-soft border-transparent hover:text-grove-dark hover:border-ridge";
+
 export default function Navbar({ isMobile = false, onItemClick }) {
   const pathname = usePathname();
 
+  // Desktop: links in a row. Mobile: links stacked in a column.
+  const listLayout = isMobile ? "flex flex-col divide-y divide-line" : "flex items-center gap-6";
+  const linkSpacing = isMobile ? "py-4" : "py-1";
+
   return (
-    <nav>
-      <ul
-        className={`flex ${
-          isMobile
-            ? "flex-col divide-y divide-gray-200"
-            : "items-center gap-1"
-        }`}
-      >
+    <nav aria-label="Primary navigation">
+      <ul className={listLayout}>
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const stateClasses = isActive ? linkActive : linkIdle;
 
           return (
             <li key={item.href}>
-              <Link
-                href={item.href}
-                onClick={onItemClick}
-                className={`block px-4 py-2 rounded-lg text-sm font-medium transition
-                  ${
-                    isActive
-                      ? "text-primary bg-primary-light"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-primary"
-                  }
-                `}
-              >
+              <Link href={item.href} onClick={onItemClick} className={`${linkBase} ${linkSpacing} ${stateClasses}`}>
                 {item.label}
               </Link>
             </li>

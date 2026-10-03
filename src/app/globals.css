@@ -1,58 +1,62 @@
 @import "tailwindcss";
 
-/* =========================
-   DESIGN TOKENS (TAILWIND v4)
-   ========================= */
-
-:root {
-  --color-primary: #1F7A63;
-  --color-primary-dark: #155E4C;
-  --color-primary-light: #E6F4F1;
-
-  --color-background: #ffffff;
-  --color-foreground: #1F7A63;
-  --color-muted: #6B7280;
-  --color-border: #E5E7EB;
-}
-
-/* Tailwind theme mapping */
 @theme inline {
-  --color-primary: var(--color-primary);
-  --color-primary-dark: var(--color-primary-dark);
-  --color-primary-light: var(--color-primary-light);
-
-  --color-background: var(--color-background);
-  --color-foreground: var(--color-foreground);
-  --color-muted: var(--color-muted);
-  --color-border: var(--color-border);
+  --color-grove: #0F6B50;
+  --color-grove-dark: #0A3F31;
+  --color-grove-soft: #E3F0EA;
+  --color-mist: #F4F9F6;
+  --color-ridge: #2D6A9F;
+  --color-ridge-soft: #E4EEF6;
+  --color-ink: #14201B;
+  --color-ink-soft: #4F5E57;
+  --color-line: #D5E3DB;
+  --color-card: #FFFFFF;
+  --color-appna-maroon: var(--color-grove);
+  --color-appna-maroon-dark: var(--color-grove-dark);
+  --color-appna-maroon-light: var(--color-grove-soft);
+  --color-appna-background: var(--color-mist);
+  --color-appna-surface: var(--color-card);
+  --color-appna-surface-muted: var(--color-grove-soft);
+  --color-appna-ink: var(--color-ink);
+  --color-appna-ink-soft: var(--color-ink-soft);
+  --color-appna-border: var(--color-line);
+  --color-appna-accent: var(--color-ridge);
+  --color-appna-accent-light: var(--color-ridge-soft);
+  --font-display: var(--font-cormorant), serif;
+  --font-body: var(--font-dm-sans), sans-serif;
 }
 
-/* Dark mode (optional later) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #0F172A;
-    --color-foreground: #1e1e20;
-    --color-border: #1E293B;
+@layer base {
+  * {
+    border-color: var(--color-line);
   }
-}
 
-/* Base */
-body {
-  background: var(--color-background);
-  color: var(--color-foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-}
-
-/* Animation (keep yours) */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
+  html {
+    scroll-behavior: smooth;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  body {
+    min-height: 100vh;
+    background: var(--color-mist);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    text-rendering: optimizeLegibility;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    outline-offset: 3px;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--color-ridge);
   }
 }
 
