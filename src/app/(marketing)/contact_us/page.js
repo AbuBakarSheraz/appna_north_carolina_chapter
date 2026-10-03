@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { Mail, MapPin, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import PageHeader from "../../../components/shared/PageHeader";
+import Section from "../../../components/shared/Section";
+
+// Edit these two lines to restyle every form field
+const labelClass = "mb-1 block text-sm font-medium text-ink";
+const inputClass = "w-full rounded-lg border border-line bg-card px-4 py-2.5 text-ink focus:border-grove focus:outline-none focus:ring-2 focus:ring-grove/30";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -31,14 +37,11 @@ export default function ContactPage() {
     setErrorMsg("");
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/contact`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -54,165 +57,103 @@ export default function ContactPage() {
   };
 
   return (
-    <section className="relative bg-[#f8f9fb] py-10">
-      <div className="px-6 sm:px-10 lg:px-18">
+    <>
+      <PageHeader
+        eyebrow="Get in touch"
+        title="Contact Us"
+        subtitle="Have a question, collaboration idea, or need assistance? Reach out to APPNA North Carolina — we’re here to help and support our community."
+      />
 
-        {/* Section Heading */}
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <h2 className="text-3xl md:text-4xl font-semibold text-[#7a1f3d]">
-            Contact Us
-          </h2>
-          <p className="mt-4 text-gray-600">
-            Have a question, collaboration idea, or need assistance?
-            Reach out to APPNA North Carolina — we&apos;re here to help and
-            support our community.
-          </p>
-        </div>
-
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-
-          {/* Left – Contact Info */}
-          <div className="space-y-8">
-            <div>
-              <h3 className="text-lg font-semibold text-green-900 mb-2">Email</h3>
-              <div className="flex items-center gap-3 text-green-800">
-                <Mail size={20} />
-                <a
-                  href="mailto:appnanc@gmail.com"
-                  className="hover:text-green-900 transition"
-                >
-                  appnanc@gmail.com
-                </a>
+      <Section flushTop>
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+          {/* Left: contact info */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-grove-soft text-grove">
+                <Mail size={22} aria-hidden="true" />
+              </div>
+              <div>
+                <h3 className="font-display text-2xl font-medium text-grove-dark">Email</h3>
+                <a href="mailto:appnanc@gmail.com" className="text-ink-soft transition hover:text-grove">appnanc@gmail.com</a>
               </div>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold text-green-900 mb-2">Location</h3>
-              <div className="flex items-center gap-3 text-green-800">
-                <MapPin size={20} />
-                <span>North Carolina, United States</span>
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-grove-soft text-grove">
+                <MapPin size={22} aria-hidden="true" />
+              </div>
+              <div>
+                <h3 className="font-display text-2xl font-medium text-grove-dark">Location</h3>
+                <p className="text-ink-soft">North Carolina, United States</p>
               </div>
             </div>
 
-            <p className="text-sm text-gray-600 max-w-md">
-              We typically respond within 24–48 hours. Your message is
-              important to us and will be handled with care.
+            <p className="max-w-md text-sm leading-6 text-ink-soft">
+              We typically respond within 24–48 hours. Your message is important to us and will be handled with care.
             </p>
           </div>
 
-          {/* Right – Contact Form */}
-          <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 sm:p-8 space-y-5">
-
+          {/* Right: contact form */}
+          <div className="rounded-xl border border-line bg-card p-6 shadow-sm sm:p-8">
             {status === "success" ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center gap-4">
-                <CheckCircle className="w-14 h-14 text-green-600" />
-                <h3 className="text-xl font-semibold text-green-900">Message Sent!</h3>
-                <p className="text-gray-600 text-sm max-w-xs">
-                  Thank you for reaching out. We&apos;ve sent a confirmation to your
-                  email and will be in touch within 24–48 hours.
+              <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+                <CheckCircle className="h-14 w-14 text-grove" aria-hidden="true" />
+                <h3 className="font-display text-2xl font-medium text-grove-dark">Message Sent!</h3>
+                <p className="max-w-xs text-sm leading-6 text-ink-soft">
+                  Thank you for reaching out. We’ve sent a confirmation to your email and will be in touch within 24–48 hours.
                 </p>
-                <button
-                  onClick={() => setStatus("idle")}
-                  className="mt-2 text-sm font-medium text-[#7a1f3d] hover:underline"
-                >
+                <button type="button" onClick={() => setStatus("idle")} className="mt-2 text-sm font-semibold uppercase tracking-wide text-grove hover:text-grove-dark">
                   Send another message
                 </button>
               </div>
             ) : (
-              <>
+              <form onSubmit={handleSubmit} noValidate className="space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-green-900 mb-1">
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={form.fullName}
-                    onChange={handleChange}
-                    placeholder="Your name"
-                    className="w-full rounded-lg border border-green-200 px-4 py-2.5
-                      focus:outline-none focus:ring-2 focus:ring-green-700/30"
-                  />
+                  <label htmlFor="fullName" className={labelClass}>Full Name</label>
+                  <input id="fullName" type="text" name="fullName" value={form.fullName} onChange={handleChange} placeholder="Your name" className={inputClass} />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-900 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    placeholder="you@example.com"
-                    className="w-full rounded-lg border border-green-200 px-4 py-2.5
-                      focus:outline-none focus:ring-2 focus:ring-green-700/30"
-                  />
+                  <label htmlFor="email" className={labelClass}>Email Address</label>
+                  <input id="email" type="email" name="email" value={form.email} onChange={handleChange} placeholder="you@example.com" className={inputClass} />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-900 mb-1">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    name="subject"
-                    value={form.subject}
-                    onChange={handleChange}
-                    placeholder="How can we help?"
-                    className="w-full rounded-lg border border-green-200 px-4 py-2.5
-                      focus:outline-none focus:ring-2 focus:ring-green-700/30"
-                  />
+                  <label htmlFor="subject" className={labelClass}>Subject</label>
+                  <input id="subject" type="text" name="subject" value={form.subject} onChange={handleChange} placeholder="How can we help?" className={inputClass} />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-green-900 mb-1">
-                    Message
-                  </label>
-                  <textarea
-                    rows={4}
-                    name="message"
-                    value={form.message}
-                    onChange={handleChange}
-                    placeholder="Write your message..."
-                    className="w-full rounded-lg border border-green-200 px-4 py-2.5
-                      focus:outline-none focus:ring-2 focus:ring-green-700/30 resize-none"
-                  />
+                  <label htmlFor="message" className={labelClass}>Message</label>
+                  <textarea id="message" rows={4} name="message" value={form.message} onChange={handleChange} placeholder="Write your message..." className={`${inputClass} resize-none`} />
                 </div>
 
-                {status === "error" && (
-                  <div className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                    <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                {status === "error" ? (
+                  <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
                     <span>{errorMsg}</span>
                   </div>
-                )}
+                ) : null}
 
                 <button
-                  onClick={handleSubmit}
+                  type="submit"
                   disabled={status === "loading"}
-                  className="
-                    w-full rounded-lg bg-green-900 text-white py-3
-                    font-medium tracking-wide
-                    hover:bg-green-800 transition
-                    disabled:opacity-60 disabled:cursor-not-allowed
-                    flex items-center justify-center gap-2
-                  "
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-grove py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-grove-dark disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {status === "loading" ? (
                     <>
-                      <Loader2 size={18} className="animate-spin" />
+                      <Loader2 size={18} className="animate-spin" aria-hidden="true" />
                       Sending…
                     </>
                   ) : (
                     "Send Message"
                   )}
                 </button>
-              </>
+              </form>
             )}
           </div>
         </div>
-      </div>
-    </section>
+      </Section>
+    </>
   );
 }
