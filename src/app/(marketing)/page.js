@@ -39,7 +39,7 @@ export default function Home() {
 
       <Section eyebrow="Our affiliation" title="A chapter within APPNA" intro="Serving North Carolina through professional connection, education, and community engagement." flushTop>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-appna-maroon/10 bg-appna-surface p-5"><p className="font-display text-3xl text-appna-maroon-dark">2003</p><p className="mt-2 text-sm leading-6 text-appna-ink-soft">North Carolina Chapter founded</p></div>
+          <div className="rounded-xl border border-appna-maroon/10 bg-appna-surface p-5"><p className="font-display text-3xl text-appna-maroon-dark">2001</p><p className="mt-2 text-sm leading-6 text-appna-ink-soft">North Carolina Chapter founded</p></div>
           <div className="rounded-xl border border-appna-maroon/10 bg-appna-surface p-5"><p className="font-display text-3xl text-appna-maroon-dark">1976</p><p className="mt-2 text-sm leading-6 text-appna-ink-soft">APPNA established</p></div>
           <div className="rounded-xl border border-appna-maroon/10 bg-appna-surface p-5"><p className="font-display text-3xl text-appna-maroon-dark">18,000+</p><p className="mt-2 text-sm leading-6 text-appna-ink-soft">Physicians across the United States and Canada</p></div>
           <div className="rounded-xl border border-appna-maroon/10 bg-appna-surface p-5"><p className="font-display text-3xl text-appna-maroon-dark">Non-profit</p><p className="mt-2 text-sm leading-6 text-appna-ink-soft">Committed to professional and community service</p></div>
