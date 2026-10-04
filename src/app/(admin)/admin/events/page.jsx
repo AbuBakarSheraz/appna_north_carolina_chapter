@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ArrowUpRight, Ban, CalendarDays, CheckCircle2, ChevronLeft, ChevronRight,
-  ClipboardList, DollarSign, Loader2, MapPin, Plus, RefreshCw, ScanLine,
+  ClipboardList, DollarSign, Download, FileText, Loader2, MapPin, Plus, RefreshCw, ScanLine,
   Search, Send, Settings2, Ticket, Trash2, Users, XCircle,
 } from 'lucide-react';
 import {
@@ -42,6 +42,42 @@ const statusColors = {
 
 const formatDate = (date, compact = false) => date ? new Date(date).toLocaleDateString('en-US', compact ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' }) : 'Date to be confirmed';
 const readableStatus = (status) => String(status || 'Unknown').replaceAll('_', ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+const exportDateTime = (date) => date ? new Date(date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+const csvCell = (value) => {
+  const text = value === null || value === undefined ? '' : String(value);
+  // Prevent spreadsheet applications from treating attendee data as a formula.
+  const safeText = /^[=+\-@]/.test(text) ? `'${text}` : text;
+  return `"${safeText.replaceAll('"', '""')}"`;
+};
+const escapeHtml = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+const ticketTypeFor = (request) => {
+  const answers = request.answers;
+  if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return 'Standard';
+  const match = Object.entries(answers).find(([key]) => key.toLowerCase().replaceAll(/[_\s-]/g, '') === 'tickettype');
+  const value = match?.[1];
+  return value === null || value === undefined || value === '' ? 'Standard' : Array.isArray(value) ? value.join(', ') : String(value);
+};
+const downloadCsv = (filename, headers, rows) => {
+  const csv = `\uFEFF${[headers, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n')}`;
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+};
+const printPdf = (title, subtitle, headers, rows, printWindow) => {
+  const popup = printWindow ?? window.open('', '_blank');
+  if (!popup) throw new Error('Your browser blocked the PDF window. Please allow pop-ups and try again.');
+  popup.document.write(`<!doctype html><html><head><title>${escapeHtml(title)}</title><style>
+    @page { size: landscape; margin: 12mm; } * { box-sizing: border-box; } body { color: #172033; font-family: Arial, sans-serif; font-size: 10px; margin: 0; }
+    h1 { color: #1a2744; font-size: 20px; margin: 0; } p { color: #5b6473; margin: 5px 0 16px; } table { border-collapse: collapse; width: 100%; } th { background: #1a2744; color: white; font-size: 8px; letter-spacing: .06em; text-align: left; text-transform: uppercase; } th, td { border: 1px solid #dce1e9; padding: 7px; vertical-align: top; } td { word-break: break-word; } tr:nth-child(even) td { background: #f7f8fb; } .footer { color: #7b8494; font-size: 8px; margin-top: 12px; }
+  </style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(subtitle)}</p><table><thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table><p class="footer">Generated ${escapeHtml(exportDateTime(new Date()))} · APPNA North Carolina</p><script>window.onload = () => window.print();<\/script></body></html>`);
+  popup.document.close();
+};
+const exportFileName = (label, extension) => `${label.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replaceAll(/^-|-$/g, '')}-${new Date().toISOString().slice(0, 10)}.${extension}`;
 
 function StatusBadge({ status }) {
   return <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.08em] ${statusColors[status] || statusColors.DRAFT}`}>{readableStatus(status)}</span>;
@@ -81,6 +117,7 @@ export default function AdminEventsPage() {
   const [ticketsLoading, setTicketsLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cashSaving, setCashSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState('');
   const ticketRequestVersion = useRef(0);
 
@@ -155,6 +192,97 @@ export default function AdminEventsPage() {
     catch (error) { show(error?.response?.data?.message || 'Could not generate the cash ticket.'); }
     finally { setCashSaving(false); }
   };
+  const exportTicketData = async (report, format) => {
+    const printWindow = format === 'pdf' ? window.open('', '_blank') : null;
+    if (format === 'pdf' && !printWindow) { show('Please allow pop-ups to export a PDF.'); return; }
+    setExporting(true);
+    try {
+      const exportRequests = [];
+      let page = 1;
+      let totalPages = 1;
+      do {
+        const response = await getTicketRequests({
+          eventId: selectedEventId || undefined,
+          status: requestFilter === 'PENDING' ? 'AWAITING_ADMIN_CONFIRMATION' : requestFilter,
+          search: requestSearch || undefined,
+          page,
+          limit: 100,
+        });
+        const data = response.data;
+        exportRequests.push(...(data.items ?? data));
+        totalPages = data.totalPages ?? 1;
+        page += 1;
+      } while (page <= totalPages);
+
+      if (!exportRequests.length) {
+        printWindow?.close();
+        show('There is no ticket data matching the current filters.');
+        return;
+      }
+
+      const eventName = selectedEvent?.title || 'All events';
+      const scope = `${eventName} · ${readableStatus(requestFilter)} · ${requestSearch ? `Search: ${requestSearch}` : 'All matching registrations'}`;
+      let title;
+      let headers;
+      let rows;
+
+      if (report === 'holders') {
+        title = 'Ticket holders';
+        headers = ['Event', 'Ticket type', 'Ticket number', 'Holder name', 'Email', 'Phone', 'Tickets in order', 'Ticket status', 'Order status', 'Check-in time', 'Order date'];
+        rows = exportRequests.flatMap((request) => {
+          const tickets = request.tickets?.length ? request.tickets : [null];
+          return tickets.map((ticket) => [
+            request.event?.title || eventName,
+            ticketTypeFor(request),
+            ticket?.ticketNumber || request.requestNumber,
+            ticket?.attendeeName || request.fullName,
+            ticket?.attendeeEmail || request.email,
+            request.phone || '—',
+            request.ticketQuantity ?? 1,
+            ticket?.status ? readableStatus(ticket.status) : 'Not issued',
+            readableStatus(request.approvalStatus),
+            exportDateTime(ticket?.usedAt),
+            exportDateTime(request.createdAt),
+          ]);
+        });
+      } else {
+        title = 'Ticket sales summary';
+        headers = ['Event', 'Ticket type', 'Tickets sold', 'Gross sales (USD)', 'Pending tickets', 'Rejected / cancelled tickets', 'Checked in'];
+        const sales = new Map();
+        exportRequests.forEach((request) => {
+          const key = `${request.event?.id || request.eventId}|${ticketTypeFor(request)}`;
+          const row = sales.get(key) ?? {
+            event: request.event?.title || eventName, type: ticketTypeFor(request), sold: 0, revenue: 0, pending: 0, unavailable: 0, checkedIn: 0,
+          };
+          const quantity = Number(request.ticketQuantity ?? 1);
+          if (request.approvalStatus === 'CONFIRMED') {
+            row.sold += quantity;
+            row.revenue += Number(request.paymentAmount ?? 0);
+            row.checkedIn += (request.tickets?.filter((ticket) => ticket.status === 'USED').length ?? 0);
+          } else if (['REJECTED', 'CANCELLED'].includes(request.approvalStatus)) {
+            row.unavailable += quantity;
+          } else {
+            row.pending += quantity;
+          }
+          sales.set(key, row);
+        });
+        rows = [...sales.values()].map((row) => [row.event, row.type, row.sold, row.revenue.toFixed(2), row.pending, row.unavailable, row.checkedIn]);
+      }
+
+      if (format === 'csv') {
+        downloadCsv(exportFileName(title, 'csv'), headers, rows);
+        show(`${title} exported for Excel.`);
+      } else {
+        printPdf(title, scope, headers, rows, printWindow);
+        show(`${title} opened for PDF export.`);
+      }
+    } catch (error) {
+      printWindow?.close();
+      show(error?.response?.data?.message || 'Could not export ticket data. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const navigation = [
     { id: 'manage', label: 'Event portfolio', icon: Settings2 },
@@ -169,7 +297,7 @@ export default function AdminEventsPage() {
     cash: ['Registration operations', 'Issue a cash ticket', 'Record an offline payment and issue a scannable pass immediately.'],
   }[activeView];
 
-  return <main className="min-h-screen bg-[#f4f6fa] px-4 py-5 text-slate-900 sm:px-6 lg:px-8"><section className="mx-auto max-w-[1440px]"><header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5"><div><p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#7a1f3d]">APPNA North Carolina · Admin</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-[#1a2744]">Event operations</h1></div><div className="flex items-center gap-2"><a href="/admin/scanner" className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-[#1a2744]/30 hover:text-[#1a2744] sm:inline-flex"><ScanLine size={16} /> QR check-in</a><button type="button" onClick={refresh} disabled={loading || ticketsLoading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-[#1a2744]/30 hover:text-[#1a2744] disabled:opacity-60"><RefreshCw size={16} className={loading || ticketsLoading ? 'animate-spin' : ''} /> Refresh</button></div></header><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"><Metric icon={CalendarDays} label="Events" value={analytics?.totalEvents} detail="Across every status" tone="navy" /><Metric icon={Users} label="Registrations" value={analytics?.totalRegistrations} detail="All attendee requests" tone="teal" /><Metric icon={Ticket} label="Approved tickets" value={analytics?.totalApprovedTickets} detail="Ready for check-in" tone="green" /><Metric icon={DollarSign} label="Revenue" value={`$${analytics?.totalRevenue ?? 0}`} detail="Recorded ticket sales" tone="gold" /><Metric icon={CheckCircle2} label="Attendance" value={`${analytics?.attendance?.attendanceRate ?? 0}%`} detail="Checked-in ticket holders" tone="purple" /></div><div className="mt-6 grid gap-6 lg:grid-cols-[238px_minmax(0,1fr)]"><aside className="h-fit overflow-hidden rounded-2xl bg-[#1a2744] p-3 shadow-xl shadow-[#1a2744]/15 lg:sticky lg:top-5"><div className="border-b border-white/10 px-3 pb-4 pt-2"><p className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-white/45">Workspace</p><p className="mt-1 text-sm font-bold text-white">Event management</p></div><nav className="mt-3 space-y-1" aria-label="Event operations">{navigation.map(({ id, label, icon: Icon }) => <button key={id} type="button" onClick={() => setActiveView(id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold transition ${activeView === id ? 'bg-white text-[#1a2744] shadow-lg' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}><Icon size={17} />{label}</button>)}</nav><a href="/admin/scanner" className="mt-3 flex items-center justify-between rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm font-bold text-white transition hover:bg-white/10 sm:hidden"><span className="flex items-center gap-3"><ScanLine size={17} /> QR check-in</span><ArrowUpRight size={16} /></a><div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-3 py-3"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/45">Quick note</p><p className="mt-1 text-xs leading-5 text-white/75">Use QR check-in on event day to keep attendance accurate in real time.</p></div></aside><section className="min-w-0"><PageHeading eyebrow={viewCopy[0]} title={viewCopy[1]} description={viewCopy[2]} action={activeView === 'manage' ? <button type="button" onClick={() => setActiveView('create')} className="inline-flex items-center gap-2 rounded-xl bg-[#1a2744] px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-[#1a2744]/15 transition hover:bg-[#2c3e67]"><Plus size={16} /> New event</button> : null} /><div className="mt-5">{activeView === 'manage' && <EventPortfolio events={events} loading={loading} selectedEventId={selectedEventId} onSelect={(id) => { selectEvent(id); setActiveView('tickets'); }} onStatusChange={(id, status) => setAdminEventStatus(id, status).then(loadOverview)} />}{activeView === 'create' && <EventForm form={form} setForm={setForm} saving={saving} onSubmit={create} />}{activeView === 'tickets' && <TicketTable selectedEvent={selectedEvent} requests={requests} loading={ticketsLoading} filter={requestFilter} onFilter={(value) => { setTicketPage(1); setRequestFilter(value); }} search={requestSearch} onSearch={(value) => { setTicketPage(1); setRequestSearch(value); }} pagination={ticketPagination} setPage={setTicketPage} review={review} manageTicket={manageTicket} />}{activeView === 'cash' && <CashTicketForm events={events} selectedEvent={selectedEvent} selectedEventId={selectedEventId} onSelect={selectEvent} ticket={cashTicket} setTicket={setCashTicket} saving={cashSaving} onSubmit={issueCashTicket} />}</div></section></div></section>{toast && <div role="status" className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-2xl">{toast}</div>}</main>;
+  return <main className="min-h-screen bg-[#f4f6fa] px-4 py-5 text-slate-900 sm:px-6 lg:px-8"><section className="mx-auto max-w-[1440px]"><header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5"><div><p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#7a1f3d]">APPNA North Carolina · Admin</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-[#1a2744]">Event operations</h1></div><div className="flex items-center gap-2"><a href="/admin/scanner" className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-[#1a2744]/30 hover:text-[#1a2744] sm:inline-flex"><ScanLine size={16} /> QR check-in</a><button type="button" onClick={refresh} disabled={loading || ticketsLoading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-[#1a2744]/30 hover:text-[#1a2744] disabled:opacity-60"><RefreshCw size={16} className={loading || ticketsLoading ? 'animate-spin' : ''} /> Refresh</button></div></header><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"><Metric icon={CalendarDays} label="Events" value={analytics?.totalEvents} detail="Across every status" tone="navy" /><Metric icon={Users} label="Registrations" value={analytics?.totalRegistrations} detail="All attendee requests" tone="teal" /><Metric icon={Ticket} label="Approved tickets" value={analytics?.totalApprovedTickets} detail="Ready for check-in" tone="green" /><Metric icon={DollarSign} label="Revenue" value={`$${analytics?.totalRevenue ?? 0}`} detail="Recorded ticket sales" tone="gold" /><Metric icon={CheckCircle2} label="Attendance" value={`${analytics?.attendance?.attendanceRate ?? 0}%`} detail="Checked-in ticket holders" tone="purple" /></div><div className="mt-6 grid gap-6 lg:grid-cols-[238px_minmax(0,1fr)]"><aside className="h-fit overflow-hidden rounded-2xl bg-[#1a2744] p-3 shadow-xl shadow-[#1a2744]/15 lg:sticky lg:top-5"><div className="border-b border-white/10 px-3 pb-4 pt-2"><p className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-white/45">Workspace</p><p className="mt-1 text-sm font-bold text-white">Event management</p></div><nav className="mt-3 space-y-1" aria-label="Event operations">{navigation.map(({ id, label, icon: Icon }) => <button key={id} type="button" onClick={() => setActiveView(id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold transition ${activeView === id ? 'bg-white text-[#1a2744] shadow-lg' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}><Icon size={17} />{label}</button>)}</nav><a href="/admin/scanner" className="mt-3 flex items-center justify-between rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm font-bold text-white transition hover:bg-white/10 sm:hidden"><span className="flex items-center gap-3"><ScanLine size={17} /> QR check-in</span><ArrowUpRight size={16} /></a><div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-3 py-3"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/45">Quick note</p><p className="mt-1 text-xs leading-5 text-white/75">Use QR check-in on event day to keep attendance accurate in real time.</p></div></aside><section className="min-w-0"><PageHeading eyebrow={viewCopy[0]} title={viewCopy[1]} description={viewCopy[2]} action={activeView === 'manage' ? <button type="button" onClick={() => setActiveView('create')} className="inline-flex items-center gap-2 rounded-xl bg-[#1a2744] px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-[#1a2744]/15 transition hover:bg-[#2c3e67]"><Plus size={16} /> New event</button> : null} /><div className="mt-5">{activeView === 'manage' && <EventPortfolio events={events} loading={loading} selectedEventId={selectedEventId} onSelect={(id) => { selectEvent(id); setActiveView('tickets'); }} onStatusChange={(id, status) => setAdminEventStatus(id, status).then(loadOverview)} />}{activeView === 'create' && <EventForm form={form} setForm={setForm} saving={saving} onSubmit={create} />}{activeView === 'tickets' && <TicketTable selectedEvent={selectedEvent} requests={requests} loading={ticketsLoading} filter={requestFilter} onFilter={(value) => { setTicketPage(1); setRequestFilter(value); }} search={requestSearch} onSearch={(value) => { setTicketPage(1); setRequestSearch(value); }} pagination={ticketPagination} setPage={setTicketPage} review={review} manageTicket={manageTicket} onExport={exportTicketData} exporting={exporting} />}{activeView === 'cash' && <CashTicketForm events={events} selectedEvent={selectedEvent} selectedEventId={selectedEventId} onSelect={selectEvent} ticket={cashTicket} setTicket={setCashTicket} saving={cashSaving} onSubmit={issueCashTicket} />}</div></section></div></section>{toast && <div role="status" className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-2xl">{toast}</div>}</main>;
 }
 
 function EventPortfolio({ events, loading, selectedEventId, onSelect, onStatusChange }) {
@@ -186,7 +314,11 @@ function EventForm({ form, setForm, saving, onSubmit }) {
 
 function FormSection({ title, children }) { return <section className="border-b border-slate-100 pb-7 last:border-0 last:pb-0"><p className="mb-4 text-[10px] font-extrabold uppercase tracking-[0.16em] text-slate-400">{title}</p>{children}</section>; }
 
-function TicketTable({ selectedEvent, requests, loading, filter, onFilter, search, onSearch, pagination, setPage, review, manageTicket }) {
+function TicketTable({ onExport, exporting, ...tableProps }) {
+  return <div className="space-y-4"><section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"><div><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[#7a1f3d]">Reports & exports</p><p className="mt-1 text-sm text-slate-500">Exports include every result that matches the current event, status, and search filters.</p></div><div className="flex flex-wrap gap-2"><button type="button" disabled={exporting} onClick={() => onExport('holders', 'csv')} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-[#1a2744]/30 hover:text-[#1a2744] disabled:opacity-50"><Download size={14} />Holders · Excel</button><button type="button" disabled={exporting} onClick={() => onExport('holders', 'pdf')} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700 transition hover:border-[#1a2744]/30 hover:text-[#1a2744] disabled:opacity-50"><FileText size={14} />Holders · PDF</button><button type="button" disabled={exporting} onClick={() => onExport('sales', 'csv')} className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a2744] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#2c3e67] disabled:opacity-50"><Download size={14} />Sales · Excel</button><button type="button" disabled={exporting} onClick={() => onExport('sales', 'pdf')} className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a2744] px-3 py-2 text-xs font-bold text-white transition hover:bg-[#2c3e67] disabled:opacity-50"><FileText size={14} />Sales · PDF</button></div></section><LegacyTicketTable {...tableProps} /></div>;
+}
+
+function LegacyTicketTable({ selectedEvent, requests, loading, filter, onFilter, search, onSearch, pagination, setPage, review, manageTicket }) {
   const filters = [['ALL', 'All'], ['PENDING', 'Needs review'], ['CONFIRMED', 'Approved'], ['REJECTED', 'Rejected'], ['CANCELLED', 'Cancelled']];
   return <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><div className="border-b border-slate-100 px-5 py-5"><div className="flex flex-col justify-between gap-4 xl:flex-row"><div className="min-w-0">{selectedEvent ? <div className="flex items-center gap-3"><EventImage event={selectedEvent} /><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="truncate font-bold text-slate-950">{selectedEvent.title}</h3><StatusBadge status={selectedEvent.status} /></div><p className="mt-1 text-xs text-slate-500">{formatDate(selectedEvent.date)} · {selectedEvent.venue || 'Venue not set'}</p></div></div> : <><h3 className="font-bold text-slate-950">All ticket requests</h3><p className="mt-1 text-sm text-slate-500">Choose an event from the catalogue to narrow this queue.</p></>}</div><div className="flex h-fit flex-wrap gap-1 rounded-xl bg-slate-100 p-1.5">{filters.map(([value, label]) => <button key={value} type="button" onClick={() => onFilter(value)} className={`rounded-lg px-3 py-2 text-xs font-bold transition ${filter === value ? 'bg-white text-[#1a2744] shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>{label}</button>)}</div></div><label className="mt-5 flex max-w-xl items-center gap-2.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 shadow-sm focus-within:border-[#1a2744] focus-within:ring-4 focus-within:ring-[#1a2744]/10"><Search size={16} className="text-slate-400" /><input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Search attendee, email, or ticket number" className="w-full bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400" /></label></div><div className="flex items-center justify-between border-b border-slate-100 px-5 py-3 text-xs text-slate-500"><span>{loading ? 'Refreshing ticket queue…' : `${pagination.total} request${pagination.total === 1 ? '' : 's'} · Page ${pagination.page} of ${pagination.totalPages}`}</span><div className="flex gap-1.5"><button type="button" aria-label="Previous ticket page" disabled={loading || pagination.page <= 1} onClick={() => setPage((page) => Math.max(1, page - 1))} className="rounded-lg border border-slate-200 p-1.5 disabled:opacity-40"><ChevronLeft size={16} /></button><button type="button" aria-label="Next ticket page" disabled={loading || pagination.page >= pagination.totalPages} onClick={() => setPage((page) => Math.min(pagination.totalPages, page + 1))} className="rounded-lg border border-slate-200 p-1.5 disabled:opacity-40"><ChevronRight size={16} /></button></div></div><div className="overflow-x-auto"><table className="min-w-[950px] w-full text-left text-sm"><thead className="bg-slate-50 text-[10px] font-extrabold uppercase tracking-[0.13em] text-slate-400"><tr><th className="px-5 py-3.5">Attendee</th><th className="px-4 py-3.5">Ticket</th><th className="px-4 py-3.5">Payment</th><th className="px-4 py-3.5">Status</th><th className="px-5 py-3.5 text-right">Actions</th></tr></thead><tbody className={`divide-y divide-slate-100 transition-opacity ${loading ? 'opacity-45' : ''}`}>{requests.length === 0 ? <tr><td colSpan={5}><EmptyState icon={Ticket} title={loading ? 'Loading requests' : 'No ticket requests found'} description={loading ? 'Getting the latest registration data.' : 'Try another status or search term.'} /></td></tr> : requests.map((request) => <TicketRow key={request.id} request={request} disabled={loading} review={review} manageTicket={manageTicket} />)}</tbody></table></div></section>;
 }
