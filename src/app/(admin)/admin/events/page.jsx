@@ -49,7 +49,6 @@ const csvCell = (value) => {
   const safeText = /^[=+\-@]/.test(text) ? `'${text}` : text;
   return `"${safeText.replaceAll('"', '""')}"`;
 };
-const escapeHtml = (value) => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 const ticketTypeFor = (request) => {
   const answers = request.answers;
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) return 'Standard';
@@ -68,14 +67,54 @@ const downloadCsv = (filename, headers, rows) => {
   link.remove();
   URL.revokeObjectURL(url);
 };
-const printPdf = (title, subtitle, headers, rows, printWindow) => {
-  const popup = printWindow ?? window.open('', '_blank');
-  if (!popup) throw new Error('Your browser blocked the PDF window. Please allow pop-ups and try again.');
-  popup.document.write(`<!doctype html><html><head><title>${escapeHtml(title)}</title><style>
-    @page { size: landscape; margin: 12mm; } * { box-sizing: border-box; } body { color: #172033; font-family: Arial, sans-serif; font-size: 10px; margin: 0; }
-    h1 { color: #1a2744; font-size: 20px; margin: 0; } p { color: #5b6473; margin: 5px 0 16px; } table { border-collapse: collapse; width: 100%; } th { background: #1a2744; color: white; font-size: 8px; letter-spacing: .06em; text-align: left; text-transform: uppercase; } th, td { border: 1px solid #dce1e9; padding: 7px; vertical-align: top; } td { word-break: break-word; } tr:nth-child(even) td { background: #f7f8fb; } .footer { color: #7b8494; font-size: 8px; margin-top: 12px; }
-  </style></head><body><h1>${escapeHtml(title)}</h1><p>${escapeHtml(subtitle)}</p><table><thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table><p class="footer">Generated ${escapeHtml(exportDateTime(new Date()))} · APPNA North Carolina</p><script>window.onload = () => window.print();<\/script></body></html>`);
-  popup.document.close();
+const pdfText = (value) => String(value ?? '').normalize('NFKD').replaceAll(/[^\x20-\x7E]/g, '?').replaceAll(/([\\()])/g, '\\$1');
+const downloadPdf = (filename, title, subtitle, headers, rows) => {
+  const pageWidth = 792;
+  const pageHeight = 612;
+  const margin = 24;
+  const columnWidth = (pageWidth - margin * 2) / headers.length;
+  const rowChunks = Array.from({ length: Math.ceil(rows.length / 34) }, (_, index) => rows.slice(index * 34, index * 34 + 34));
+  const objects = {};
+  const pageRefs = [];
+  let nextObject = 4;
+  rowChunks.forEach((pageRows, pageIndex) => {
+    const pageObject = nextObject++;
+    const contentObject = nextObject++;
+    pageRefs.push(`${pageObject} 0 R`);
+    const textAt = (text, x, y, size, color = '0.10 0.15 0.27') => `BT /F1 ${size} Tf ${color} rg 1 0 0 1 ${x.toFixed(1)} ${y.toFixed(1)} Tm (${pdfText(text)}) Tj ET`;
+    const commands = [textAt(title, margin, 574, 17), textAt(subtitle, margin, 556, 8, '0.35 0.39 0.45')];
+    let y = 534;
+    headers.forEach((header, index) => commands.push(textAt(header.toUpperCase().slice(0, Math.max(5, Math.floor(columnWidth / 4.2))), margin + index * columnWidth + 2, y, 6, '0.10 0.15 0.27')));
+    commands.push(`0.75 G ${margin} ${y - 4} m ${pageWidth - margin} ${y - 4} l S`);
+    pageRows.forEach((row) => {
+      y -= 14;
+      row.forEach((cell, index) => commands.push(textAt(String(cell).slice(0, Math.max(6, Math.floor(columnWidth / 3.8))), margin + index * columnWidth + 2, y, 6.2, '0.13 0.16 0.21')));
+      commands.push(`0.88 G ${margin} ${y - 4} m ${pageWidth - margin} ${y - 4} l S`);
+    });
+    commands.push(textAt(`APPNA North Carolina - page ${pageIndex + 1} of ${rowChunks.length}`, margin, 18, 7, '0.45 0.49 0.55'));
+    const stream = commands.join('\n');
+    objects[pageObject] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentObject} 0 R >>`;
+    objects[contentObject] = `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`;
+  });
+  objects[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+  objects[2] = `<< /Type /Pages /Kids [${pageRefs.join(' ')}] /Count ${pageRefs.length} >>`;
+  objects[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>';
+  let pdf = '%PDF-1.4\n%APPNA\n';
+  const offsets = [0];
+  for (let object = 1; object < nextObject; object += 1) {
+    offsets[object] = pdf.length;
+    pdf += `${object} 0 obj\n${objects[object]}\nendobj\n`;
+  }
+  const xref = pdf.length;
+  pdf += `xref\n0 ${nextObject}\n0000000000 65535 f \n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`).join('')}trailer\n<< /Size ${nextObject} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  const url = URL.createObjectURL(new Blob([pdf], { type: 'application/pdf' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 };
 const exportFileName = (label, extension) => `${label.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replaceAll(/^-|-$/g, '')}-${new Date().toISOString().slice(0, 10)}.${extension}`;
 
@@ -164,6 +203,7 @@ export default function AdminEventsPage() {
     const timeout = setTimeout(() => { loadTickets(); }, selectedEventId ? 200 : 0);
     return () => clearTimeout(timeout);
   }, [selectedEventId, requestFilter, requestSearch, ticketPage]);
+  useEffect(() => { if (activeView === 'cme') window.location.assign('/admin/cme'); }, [activeView]);
 
   const show = (message) => { setToast(message); setTimeout(() => setToast(''), 3000); };
   const selectEvent = (eventId) => { setTicketPage(1); setSelectedEventId(eventId); };
@@ -193,8 +233,6 @@ export default function AdminEventsPage() {
     finally { setCashSaving(false); }
   };
   const exportTicketData = async (report, format) => {
-    const printWindow = format === 'pdf' ? window.open('', '_blank') : null;
-    if (format === 'pdf' && !printWindow) { show('Please allow pop-ups to export a PDF.'); return; }
     setExporting(true);
     try {
       const exportRequests = [];
@@ -215,7 +253,6 @@ export default function AdminEventsPage() {
       } while (page <= totalPages);
 
       if (!exportRequests.length) {
-        printWindow?.close();
         show('There is no ticket data matching the current filters.');
         return;
       }
@@ -273,11 +310,10 @@ export default function AdminEventsPage() {
         downloadCsv(exportFileName(title, 'csv'), headers, rows);
         show(`${title} exported for Excel.`);
       } else {
-        printPdf(title, scope, headers, rows, printWindow);
-        show(`${title} opened for PDF export.`);
+        downloadPdf(exportFileName(title, 'pdf'), title, scope, headers, rows);
+        show(`${title} downloaded as a PDF.`);
       }
     } catch (error) {
-      printWindow?.close();
       show(error?.response?.data?.message || 'Could not export ticket data. Please try again.');
     } finally {
       setExporting(false);
@@ -289,12 +325,14 @@ export default function AdminEventsPage() {
     { id: 'create', label: 'Create event', icon: Plus },
     { id: 'tickets', label: 'Ticket requests', icon: ClipboardList },
     { id: 'cash', label: 'Cash ticket', icon: Ticket },
+    { id: 'cme', label: 'CME submissions', icon: ClipboardList },
   ];
   const viewCopy = {
     manage: ['Event workspace', 'Events at a glance', 'A focused view of event health, registrations, and publishing state.'],
     create: ['Event workspace', 'Create an event', 'Add an event without leaving the operations console.'],
     tickets: ['Registration operations', 'Ticket requests', 'Review attendee access, payment details, and registration history.'],
     cash: ['Registration operations', 'Issue a cash ticket', 'Record an offline payment and issue a scannable pass immediately.'],
+    cme: ['Registration operations', 'CME submissions', 'Opening the CME submission register.'],
   }[activeView];
 
   return <main className="min-h-screen bg-[#f4f6fa] px-4 py-5 text-slate-900 sm:px-6 lg:px-8"><section className="mx-auto max-w-[1440px]"><header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5"><div><p className="text-[11px] font-extrabold uppercase tracking-[0.18em] text-[#7a1f3d]">APPNA North Carolina · Admin</p><h1 className="mt-1 text-3xl font-bold tracking-tight text-[#1a2744]">Event operations</h1></div><div className="flex items-center gap-2"><a href="/admin/scanner" className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-[#1a2744]/30 hover:text-[#1a2744] sm:inline-flex"><ScanLine size={16} /> QR check-in</a><button type="button" onClick={refresh} disabled={loading || ticketsLoading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-bold text-slate-700 shadow-sm transition hover:border-[#1a2744]/30 hover:text-[#1a2744] disabled:opacity-60"><RefreshCw size={16} className={loading || ticketsLoading ? 'animate-spin' : ''} /> Refresh</button></div></header><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"><Metric icon={CalendarDays} label="Events" value={analytics?.totalEvents} detail="Across every status" tone="navy" /><Metric icon={Users} label="Registrations" value={analytics?.totalRegistrations} detail="All attendee requests" tone="teal" /><Metric icon={Ticket} label="Approved tickets" value={analytics?.totalApprovedTickets} detail="Ready for check-in" tone="green" /><Metric icon={DollarSign} label="Revenue" value={`$${analytics?.totalRevenue ?? 0}`} detail="Recorded ticket sales" tone="gold" /><Metric icon={CheckCircle2} label="Attendance" value={`${analytics?.attendance?.attendanceRate ?? 0}%`} detail="Checked-in ticket holders" tone="purple" /></div><div className="mt-6 grid gap-6 lg:grid-cols-[238px_minmax(0,1fr)]"><aside className="h-fit overflow-hidden rounded-2xl bg-[#1a2744] p-3 shadow-xl shadow-[#1a2744]/15 lg:sticky lg:top-5"><div className="border-b border-white/10 px-3 pb-4 pt-2"><p className="text-[10px] font-extrabold uppercase tracking-[0.17em] text-white/45">Workspace</p><p className="mt-1 text-sm font-bold text-white">Event management</p></div><nav className="mt-3 space-y-1" aria-label="Event operations">{navigation.map(({ id, label, icon: Icon }) => <button key={id} type="button" onClick={() => setActiveView(id)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-bold transition ${activeView === id ? 'bg-white text-[#1a2744] shadow-lg' : 'text-white/70 hover:bg-white/10 hover:text-white'}`}><Icon size={17} />{label}</button>)}</nav><a href="/admin/scanner" className="mt-3 flex items-center justify-between rounded-xl border border-white/15 bg-white/5 px-3 py-3 text-sm font-bold text-white transition hover:bg-white/10 sm:hidden"><span className="flex items-center gap-3"><ScanLine size={17} /> QR check-in</span><ArrowUpRight size={16} /></a><div className="mt-5 rounded-xl border border-white/10 bg-white/5 px-3 py-3"><p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-white/45">Quick note</p><p className="mt-1 text-xs leading-5 text-white/75">Use QR check-in on event day to keep attendance accurate in real time.</p></div></aside><section className="min-w-0"><PageHeading eyebrow={viewCopy[0]} title={viewCopy[1]} description={viewCopy[2]} action={activeView === 'manage' ? <button type="button" onClick={() => setActiveView('create')} className="inline-flex items-center gap-2 rounded-xl bg-[#1a2744] px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-[#1a2744]/15 transition hover:bg-[#2c3e67]"><Plus size={16} /> New event</button> : null} /><div className="mt-5">{activeView === 'manage' && <EventPortfolio events={events} loading={loading} selectedEventId={selectedEventId} onSelect={(id) => { selectEvent(id); setActiveView('tickets'); }} onStatusChange={(id, status) => setAdminEventStatus(id, status).then(loadOverview)} />}{activeView === 'create' && <EventForm form={form} setForm={setForm} saving={saving} onSubmit={create} />}{activeView === 'tickets' && <TicketTable selectedEvent={selectedEvent} requests={requests} loading={ticketsLoading} filter={requestFilter} onFilter={(value) => { setTicketPage(1); setRequestFilter(value); }} search={requestSearch} onSearch={(value) => { setTicketPage(1); setRequestSearch(value); }} pagination={ticketPagination} setPage={setTicketPage} review={review} manageTicket={manageTicket} onExport={exportTicketData} exporting={exporting} />}{activeView === 'cash' && <CashTicketForm events={events} selectedEvent={selectedEvent} selectedEventId={selectedEventId} onSelect={selectEvent} ticket={cashTicket} setTicket={setCashTicket} saving={cashSaving} onSubmit={issueCashTicket} />}</div></section></div></section>{toast && <div role="status" className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-2xl">{toast}</div>}</main>;

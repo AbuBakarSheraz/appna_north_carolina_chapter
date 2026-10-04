@@ -30,6 +30,7 @@ export default function Home() {
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/85 sm:text-lg">Association of Physicians of Pakistani Descent of North America, North Carolina Chapter</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <ActionLink href="/events">Annual Banquet Tickets</ActionLink>
+              <ActionLink href="/cme" variant="secondary">CME Form</ActionLink>
               <ActionLink href="/register" variant="secondary">Join Us</ActionLink>
               <Link href="/sponsorship_proposal" className="font-accent text-sm font-semibold uppercase tracking-[0.08em] text-white underline decoration-appna-accent underline-offset-4 transition hover:text-appna-accent-light">Become a Sponsor</Link>
             </div>
