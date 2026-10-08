@@ -23,5 +23,11 @@ export const cancelTicketRequest = (id, notes = '') => api.post(`/admin/events/r
 export const deleteTicketRequest = (id) => api.post(`/admin/events/requests/${id}/delete`);
 export const createCashTicket = (eventId, data) => api.post(`/admin/events/${eventId}/cash-tickets`, data);
 export const validateTicketQr = (qrPayload) => api.post('/admin/events/tickets/validate', { qrPayload });
+
+// This endpoint only accepts the scanner capability, never an admin login.
+export const validatePublicTicketQr = (qrPayload, scannerToken) =>
+  api.post('/check-in/validate', { qrPayload }, {
+    headers: { 'X-Scanner-Token': scannerToken },
+  });
 export const getMyNotifications = () => api.get('/notifications/me');
 export const getAdminNotifications = () => api.get('/admin/events/notifications');
