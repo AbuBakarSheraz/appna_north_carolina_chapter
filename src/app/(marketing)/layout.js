@@ -15,7 +15,7 @@ export default function MarketingLayout({ children }) {
   return (
     <>
         <Header />
-        <Announcement />
+        {/* <Announcement /> */}
         <main>{children}</main>
         <Footer />
     </>
