@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Camera, CheckCircle2, ImageUp, Loader2, QrCode, RotateCcw, XCircle } from 'lucide-react';
 
-export default function TicketScanner({ onValidate, eyebrow = 'Event Check-In' }) {
+export default function TicketScanner({ onValidate, onResetCheckIn, eyebrow = 'Event Check-In' }) {
   const scannerRef = useRef(null);
   const validatingRef = useRef(false);
+  const decodedPayloadRef = useRef(null);
   const [Html5Qrcode, setHtml5Qrcode] = useState(null);
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
@@ -23,16 +24,19 @@ export default function TicketScanner({ onValidate, eyebrow = 'Event Check-In' }
   }, []);
 
   const validate = async (payload) => {
-    if (validatingRef.current) return;
+    // html5-qrcode can deliver the same camera frame more than once. Stop the
+    // camera before the API call so one physical scan can only check in once.
+    if (validatingRef.current || decodedPayloadRef.current === payload) return;
     validatingRef.current = true;
+    decodedPayloadRef.current = payload;
     setLoading(true);
     try {
-      const { data } = await onValidate(payload);
-      setResult(data);
       if (scannerRef.current?.isScanning) {
         await scannerRef.current.stop();
         setRunning(false);
       }
+      const { data } = await onValidate(payload);
+      setResult(data);
     } catch (err) {
       setResult({ status: 'Invalid', valid: false, message: err?.response?.data?.message || 'QR validation failed.' });
     } finally {
@@ -44,6 +48,7 @@ export default function TicketScanner({ onValidate, eyebrow = 'Event Check-In' }
   const startCamera = async () => {
     if (!Html5Qrcode) return;
     setResult(null);
+    decodedPayloadRef.current = null;
     const scanner = new Html5Qrcode('qr-reader');
     scannerRef.current = scanner;
     await scanner.start(
@@ -57,6 +62,20 @@ export default function TicketScanner({ onValidate, eyebrow = 'Event Check-In' }
   const stopCamera = async () => {
     if (scannerRef.current?.isScanning) await scannerRef.current.stop();
     setRunning(false);
+    decodedPayloadRef.current = null;
+  };
+
+  const resetCheckIn = async () => {
+    if (!onResetCheckIn || !result?.ticketId) return;
+    setLoading(true);
+    try {
+      const { data } = await onResetCheckIn(result.ticketId);
+      setResult(data);
+    } catch (err) {
+      setResult((current) => ({ ...current, message: err?.response?.data?.message || 'Could not reset this check-in.' }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const scanFile = async (file) => {
@@ -98,7 +117,7 @@ export default function TicketScanner({ onValidate, eyebrow = 'Event Check-In' }
                 <ImageUp size={15} /> Upload QR Image
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => scanFile(e.target.files?.[0])} />
               </label>
-              <button onClick={() => setResult(null)} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700">
+              <button onClick={() => { setResult(null); decodedPayloadRef.current = null; }} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700">
                 <RotateCcw size={15} /> Clear
               </button>
             </div>
@@ -123,6 +142,7 @@ export default function TicketScanner({ onValidate, eyebrow = 'Event Check-In' }
                   {result.checkInTime && <p><span className="font-semibold">Check-in Time:</span> {new Date(result.checkInTime).toLocaleString()}</p>}
                   {result.message && <p>{result.message}</p>}
                 </div>
+                {onResetCheckIn && result.ticketStatus === 'USED' && <button type="button" onClick={resetCheckIn} className="mt-5 rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-amber-800 transition hover:bg-amber-50">Reset check-in</button>}
               </div>
             )}
           </aside>

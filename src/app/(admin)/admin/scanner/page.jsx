@@ -1,8 +1,8 @@
 'use client';
 
 import TicketScanner from '../../../../components/TicketScanner';
-import { validateTicketQr } from '../../../../lib/events';
+import { resetTicketCheckIn, validateTicketQr } from '../../../../lib/events';
 
 export default function AdminScannerPage() {
-  return <TicketScanner onValidate={validateTicketQr} eyebrow="Admin Check-In" />;
+  return <TicketScanner onValidate={validateTicketQr} onResetCheckIn={resetTicketCheckIn} eyebrow="Admin Check-In" />;
 }
