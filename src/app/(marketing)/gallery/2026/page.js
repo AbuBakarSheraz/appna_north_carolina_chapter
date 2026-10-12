@@ -11,7 +11,12 @@ const galleryYears = [
     {
     year: "APPNA-NC Meet and Greet 2026",
     description: "Recent events, conventions, and community moments.",
-    
+    href: "/gallery/2026/meet-n-greet",
+  },
+   {
+    year: "APPNA-NC Annual Banquet, Entertainment & CME 2026",
+    description: "Recent events, conventions, and community moments.",
+    href: "/gallery/2026/banquet",
   },
   // {
   //   year: "2025",
@@ -52,7 +57,7 @@ function Page() {
         </div>
 
         {/* Years Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
           {galleryYears.map((item) => (
             <div
               key={item.year}
@@ -86,7 +91,7 @@ function Page() {
               {/* CTA */}
               <div className="mt-6">
   <Link
-    href="/gallery/2026/meet-n-greet"
+    href={item.href}
     className="text-sm font-medium text-[#7a1f3d] hover:text-[#5f1730] transition"
   >
     View Gallery →

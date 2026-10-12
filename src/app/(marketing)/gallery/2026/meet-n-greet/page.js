@@ -229,20 +229,23 @@ function GallerySkeleton() {
 }
 
 /* ─── Root component ────────────────────────────────────────────── */
-export default function Gallery() {
+export default function Gallery({
+  event = "meet-n-greet",
+  title = "Meet & Greet 2026",
+}) {
   const [images, setImages]               = useState([]);
   const [lightboxIndex, setLightboxIndex] = useState(-1);
   const [status, setStatus]               = useState("loading");
 
   useEffect(() => {
-    fetch("/api/gallery")
+    fetch(`/api/gallery?event=${event}`)
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
       .then((data) => { setImages(data); setStatus("ready"); })
       .catch(() => setStatus("error"));
-  }, []);
+  }, [event]);
 
   const openLightbox     = useCallback((i) => setLightboxIndex(i), []);
   const closeLightbox    = useCallback(() => setLightboxIndex(-1), []);
@@ -255,7 +258,7 @@ export default function Gallery() {
     <div className={styles.galleryRoot}>
       <header className={styles.galleryHero}>
         <p className={styles.galleryEyebrow}>Visual Collection</p>
-        <h1 className={styles.galleryTitle}>Gallery</h1>
+        <h1 className={styles.galleryTitle}>{title}</h1>
         <div className={styles.galleryTitleLine} />
       </header>
 
@@ -275,7 +278,7 @@ export default function Gallery() {
         )}
 
         {status === "ready" && images.length === 0 && (
-          <div className={styles.galleryEmpty}>No images found in your Cloudinary library.</div>
+          <div className={styles.galleryEmpty}>No images found in this gallery yet.</div>
         )}
 
         {status === "ready" && images.length > 0 && (
