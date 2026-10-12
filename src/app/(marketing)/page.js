@@ -29,7 +29,7 @@ export default function Home() {
             <h1 className="mt-3 font-display text-5xl font-medium leading-[1.02] tracking-[-0.03em] text-white sm:text-6xl lg:text-7xl">APPNA North Carolina</h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/85 sm:text-lg">Association of Physicians of Pakistani Descent of North America, North Carolina Chapter</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <ActionLink href="/events">Annual Banquet Tickets</ActionLink>
+              <ActionLink href="https://www.hashammalik.com/p320528024" target="_blank">Annual Banquet Images</ActionLink>
               <ActionLink href="/cme">CME Form</ActionLink>
               <ActionLink href="/register" variant="secondary">Join Us</ActionLink>
               <Link href="/sponsorship_proposal" className="font-accent text-sm font-semibold uppercase tracking-[0.08em] text-white underline decoration-appna-accent underline-offset-4 transition hover:text-appna-accent-light">Become a Sponsor</Link>
@@ -58,7 +58,7 @@ export default function Home() {
             <h3 className="mt-3 font-display text-3xl font-medium leading-tight text-appna-maroon-dark">{featuredEvent.title}</h3>
             <p className="mt-4 text-sm leading-6 text-appna-ink-soft">{featuredEvent.description}</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <ActionLink href="/events">Tickets</ActionLink>
+              <ActionLink href="https://www.hashammalik.com/p320528024" target="_blank">Annual Banquet Images</ActionLink>
               <ActionLink href={featuredEvent.href} variant="secondary">Details</ActionLink>
               <ActionLink href="/sponsorship_proposal" variant="secondary">Sponsor</ActionLink>
               <ActionLink href="/vendor_registration" variant="secondary">Vendor</ActionLink>
